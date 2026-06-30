@@ -2,7 +2,8 @@
    Saklar Pusat (Main Entry Point) - WhatsApp Clone (Rafly)
    ========================================================================== */
 
-// Meng-import semua file logika agar aktif dan berjalan bersamaan
+// Meng-import semua file logika agar aktif dan berjalan bersama
+import "./utils/notification.js";
 import "./database/firebase-config.js";
 import "./auth/login.js";
 import "./chat/group.js";
