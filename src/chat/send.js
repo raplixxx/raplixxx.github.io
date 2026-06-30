@@ -2,6 +2,7 @@
    Logika Pengiriman Pesan, Edit, Reply, Forward & Voice Note - WhatsApp Clone
    ========================================================================== */
 
+import { cekDanTanggapiAI } from "../utils/ai-assistant.js";
 import { db, auth } from "../database/firebase-config.js";
 import { collection, addDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { IDGrupAktif } from "./group.js";
