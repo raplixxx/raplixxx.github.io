@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RaflyChat - WhatsApp Clone</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="loading-screen">
+        <div class="loading-spinner"></div>
+        <p>Memuat RaflyChat...</p>
+    </div>
+
+    <!-- Main Container -->
+    <div id="app" class="app-container" style="display: none;">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <div class="user-profile">
+                    <img id="userAvatar" src="" alt="Profile" class="avatar">
+                    <div class="user-info">
+                        <h3 id="userName">Pengguna</h3>
+                        <span id="userStatus" class="status-badge offline">Offline</span>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button id="themeToggle" class="icon-btn" title="Toggle Theme">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <button id="logoutBtn" class="icon-btn" title="Keluar">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="search-container">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchChat" placeholder="Cari chat...">
+                </div>
+            </div>
+
+            <div class="sidebar-tabs">
+                <button class="tab-btn active" data-tab="chats">
+                    <i class="fas fa-comment"></i> Chat
+                </button>
+                <button class="tab-btn" data-tab="groups">
+                    <i class="fas fa-users"></i> Grup
+                </button>
+                <button class="tab-btn" data-tab="status">
+                    <i class="fas fa-circle"></i> Status
+                </button>
+            </div>
+
+            <div class="sidebar-content">
+                <div id="chatsTab" class="tab-content active">
+                    <div class="tab-header">
+                        <h4>Percakapan</h4>
+                        <button id="newChatBtn" class="icon-btn small" title="Chat Baru">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                    <div id="chatList" class="chat-list"></div>
+                </div>
+
+                <div id="groupsTab" class="tab-content">
+                    <div class="tab-header">
+                        <h4>Grup</h4>
+                        <button id="createGroupBtn" class="icon-btn small" title="Buat Grup">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                    <div id="groupList" class="chat-list"></div>
+                </div>
+
+                <div id="statusTab" class="tab-content">
+                    <div class="tab-header">
+                        <h4>Status</h4>
+                        <button id="addStatusBtn" class="icon-btn small" title="Tambah Status">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                    <div id="statusList" class="status-list"></div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Chat Area -->
+        <main id="mainContent" class="main-content">
+            <div id="welcomeScreen" class="welcome-screen">
+                <div class="welcome-content">
+                    <i class="fas fa-comments welcome-icon"></i>
+                    <h2>Selamat Datang di RaflyChat</h2>
+                    <p>Pilih percakapan atau buat grup baru untuk mulai chatting</p>
+                </div>
+            </div>
+
+            <div id="chatArea" class="chat-area" style="display: none;">
+                <div class="chat-header">
+                    <button id="backToSidebar" class="icon-btn back-btn">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <div class="chat-header-info">
+                        <img id="chatAvatar" src="" alt="" class="avatar small">
+                        <div>
+                            <h3 id="chatName">Nama Chat</h3>
+                            <span id="chatStatus" class="chat-status">Online</span>
+                        </div>
+                    </div>
+                    <div class="chat-header-actions">
+                        <button id="groupInfoBtn" class="icon-btn" title="Info Grup" style="display: none;">
+                            <i class="fas fa-info-circle"></i>
+                        </button>
+                        <button id="searchMessagesBtn" class="icon-btn" title="Cari Pesan">
+                            <i class="fas fa-search"></i>
+                        </button>
+                        <button id="closeChatBtn" class="icon-btn" title="Tutup">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="messageContainer" class="message-container">
+                    <div id="messagesList" class="messages-list"></div>
+                    <div id="scrollToBottom" class="scroll-to-bottom" style="display: none;">
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                </div>
+
+                <div id="replyPreview" class="reply-preview" style="display: none;">
+                    <div class="reply-content">
+                        <span class="reply-label">Membalas:</span>
+                        <span id="replyText" class="reply-message"></span>
+                    </div>
+                    <button id="cancelReply" class="icon-btn small">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <div class="message-input-container">
+                    <button id="emojiBtn" class="icon-btn" title="Emoji">
+                        <i class="fas fa-smile"></i>
+                    </button>
+                    <button id="attachBtn" class="icon-btn" title="Lampirkan">
+                        <i class="fas fa-paperclip"></i>
+                    </button>
+                    <div class="input-wrapper">
+                        <textarea id="messageInput" placeholder="Ketik pesan..." rows="1"></textarea>
+                    </div>
+                    <button id="voiceNoteBtn" class="icon-btn" title="Voice Note">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <button id="sendMessageBtn" class="send-btn" title="Kirim">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+
+                <div id="emojiPicker" class="emoji-picker" style="display: none;">
+                    <div class="emoji-grid">
+                        <!-- Emojis will be rendered here -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content login-modal">
+            <div class="login-header">
+                <i class="fas fa-comment-dots login-icon"></i>
+                <h2>RaflyChat</h2>
+                <p>Chat dengan mudah dan aman</p>
+            </div>
+            <button id="googleLoginBtn" class="google-login-btn">
+                <img src="https://www.google.com/favicon.ico" alt="Google">
+                Masuk dengan Google
+            </button>
+            <div class="login-footer">
+                <p>🔒 Login aman dengan Google</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Group Modal -->
+    <div id="createGroupModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Buat Grup Baru</h3>
+                <button class="close-modal icon-btn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="groupName">Nama Grup</label>
+                    <input type="text" id="groupName" placeholder="Masukkan nama grup" maxlength="100">
+                </div>
+                <div class="form-group">
+                    <label for="groupDescription">Deskripsi (Opsional)</label>
+                    <textarea id="groupDescription" placeholder="Deskripsi grup" rows="3" maxlength="500"></textarea>
+                </div>
+                <div id="groupError" class="error-message" style="display: none;"></div>
+                <button id="submitGroupBtn" class="primary-btn full-width">
+                    <i class="fas fa-plus"></i> Buat Grup
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Group Info Modal -->
+    <div id="groupInfoModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Info Grup</h3>
+                <button class="close-modal icon-btn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="groupInfoContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status Viewer Modal -->
+    <div id="statusViewerModal" class="modal status-viewer" style="display: none;">
+        <div class="status-viewer-content">
+            <button class="close-status-viewer icon-btn">
+                <i class="fas fa-times"></i>
+            </button>
+            <div id="statusViewerContainer"></div>
+        </div>
+    </div>
+
+    <!-- Notifications Container -->
+    <div id="notificationsContainer" class="notifications-container"></div>
+
+    <!-- Hidden audio element for notification sound -->
+    <audio id="notificationSound" preload="auto">
+        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACAf39/f4B/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f3+AgH9/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+AgH9/f3+Af39/gIB/f39/gIB/f3+Ag==" type="audio/wav">
+    </audio>
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, updateDoc, getDoc, deleteDoc, where, getDocs, arrayUnion, arrayRemove, increment, Timestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        window.firebaseModules = {
+            initializeApp,
+            getAuth,
+            GoogleAuthProvider,
+            signInWithPopup,
+            onAuthStateChanged,
+            signOut,
+            getFirestore,
+            collection,
+            addDoc,
+            query,
+            orderBy,
+            onSnapshot,
+            serverTimestamp,
+            doc,
+            updateDoc,
+            getDoc,
+            deleteDoc,
+            where,
+            getDocs,
+            arrayUnion,
+            arrayRemove,
+            increment,
+            Timestamp
+        };
+    </script>
+
+    <!-- Application Scripts -->
+    <script type="module" src="src/database/firebase-config.js"></script>
+    <script type="module" src="src/utils/storage-local.js"></script>
+    <script type="module" src="src/utils/notification.js"></script>
+    <script type="module" src="src/auth/login.js"></script>
+    <script type="module" src="src/chat/group.js"></script>
+    <script type="module" src="src/chat/send.js"></script>
+    <script type="module" src="src/chat/render.js"></script>
+    <script type="module" src="src/chat/action.js"></script>
+    <script type="module" src="src/status/status-upload.js"></script>
+    <script type="module" src="src/status/status-view.js"></script>
+    <script type="module" src="src/utils/ai-assistant.js"></script>
+    <script type="module" src="src/app.js"></script>
+</body>
+                      </html>
