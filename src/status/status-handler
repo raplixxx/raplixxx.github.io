@@ -1,0 +1,287 @@
+// src/status/status-handler.js
+// WHATSAPP STORY - Upload & lihat status (24 jam)
+
+// ==========================================
+// UPLOAD STATUS
+// ==========================================
+function showStatusUploadModal() {
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.style.display = 'flex';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>📸 Buat Status Baru</h3>
+                <button class="icon-btn" onclick="this.closest('.modal').remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="upload-area" id="statusUploadArea">
+                    <i class="fas fa-cloud-upload-alt" style="font-size: 48px; color: var(--accent-color); margin-bottom: 16px;"></i>
+                    <p>Klik untuk pilih foto</p>
+                    <p style="font-size: 12px; color: var(--text-secondary); margin-top: 8px;">Status akan terhapus otomatis setelah 24 jam</p>
+                    <input type="file" id="statusPhotoInput" accept="image/*" style="display: none;">
+                </div>
+                
+                <div id="statusPreview" style="display: none; margin-top: 16px;">
+                    <img id="statusPreviewImage" src="" style="width: 100%; max-height: 300px; object-fit: cover; border-radius: 8px;">
+                    <div class="form-group" style="margin-top: 16px;">
+                        <label>Caption (opsional)</label>
+                        <textarea id="statusCaptionInput" placeholder="Tulis caption..." rows="2" maxlength="200"></textarea>
+                    </div>
+                    <button class="primary-btn full-width" id="submitStatusBtn">
+                        <i class="fas fa-paper-plane"></i> Bagikan Status
+                    </button>
+                </div>
+                
+                <div id="statusError" class="error-message" style="display: none;"></div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Event listeners
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.remove();
+    });
+    
+    const uploadArea = modal.querySelector('#statusUploadArea');
+    const fileInput = modal.querySelector('#statusPhotoInput');
+    
+    uploadArea.addEventListener('click', () => fileInput.click());
+    
+    fileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) previewStatusPhoto(file, modal);
+    });
+    
+    // Drag & drop
+    uploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadArea.style.borderColor = 'var(--accent-color)';
+    });
+    
+    uploadArea.addEventListener('dragleave', () => {
+        uploadArea.style.borderColor = 'var(--border-color)';
+    });
+    
+    uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadArea.style.borderColor = 'var(--border-color)';
+        const file = e.dataTransfer.files[0];
+        if (file && file.type.startsWith('image/')) {
+            previewStatusPhoto(file, modal);
+        }
+    });
+}
+
+// ==========================================
+// PREVIEW FOTO STATUS
+// ==========================================
+let selectedStatusFile = null;
+
+function previewStatusPhoto(file, modal) {
+    // Validasi
+    if (!file.type.startsWith('image/')) {
+        modal.querySelector('#statusError').textContent = 'Harap pilih file gambar';
+        modal.querySelector('#statusError').style.display = 'block';
+        return;
+    }
+    
+    if (file.size > 5 * 1024 * 1024) {
+        modal.querySelector('#statusError').textContent = 'Ukuran foto maksimal 5MB';
+        modal.querySelector('#statusError').style.display = 'block';
+        return;
+    }
+    
+    selectedStatusFile = file;
+    
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        modal.querySelector('#statusPreviewImage').src = e.target.result;
+        modal.querySelector('#statusUploadArea').style.display = 'none';
+        modal.querySelector('#statusPreview').style.display = 'block';
+        modal.querySelector('#statusError').style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+    
+    // Submit button
+    modal.querySelector('#submitStatusBtn').addEventListener('click', async () => {
+        await uploadStatus(modal);
+    });
+}
+
+// ==========================================
+// UPLOAD STATUS KE LOCAL STORAGE
+// ==========================================
+async function uploadStatus(modal) {
+    if (!selectedStatusFile || !currentUser) return;
+    
+    const caption = modal.querySelector('#statusCaptionInput')?.value.trim() || '';
+    const submitBtn = modal.querySelector('#submitStatusBtn');
+    
+    try {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengunggah...';
+        
+        // Kompres gambar
+        const base64 = await compressImage(selectedStatusFile, 800, 0.6);
+        
+        // Simpan ke localStorage
+        saveStatusPhoto({
+            data: base64,
+            caption: caption,
+            userId: currentUser.uid,
+            userName: currentUser.displayName || 'Pengguna',
+            userPhoto: currentUser.photoURL || ''
+        });
+        
+        // Simpan metadata ke Firestore
+        await db.collection('statuses').add({
+            userId: currentUser.uid,
+            userName: currentUser.displayName || 'Pengguna',
+            userPhoto: currentUser.photoURL || '',
+            caption: caption,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000)
+        });
+        
+        modal.remove();
+        showNotif('Status berhasil dibagikan! 📸', 'success');
+        loadStatusList();
+        
+    } catch (error) {
+        console.error('Gagal upload status:', error);
+        modal.querySelector('#statusError').textContent = 'Gagal mengunggah status';
+        modal.querySelector('#statusError').style.display = 'block';
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Bagikan Status';
+    }
+}
+
+// ==========================================
+// LOAD DAFTAR STATUS
+// ==========================================
+function loadStatusList() {
+    // Load dari Firestore untuk metadata
+    db.collection('statuses')
+        .where('expiresAt', '>', new Date())
+        .orderBy('expiresAt')
+        .orderBy('createdAt', 'desc')
+        .limit(20)
+        .onSnapshot((snapshot) => {
+            const statuses = [];
+            snapshot.forEach((doc) => {
+                statuses.push({ id: doc.id, ...doc.data() });
+            });
+            
+            renderStatusList(statuses);
+        });
+}
+
+// ==========================================
+// RENDER STATUS LIST
+// ==========================================
+function renderStatusList(statuses) {
+    const container = document.getElementById('statusListContainer');
+    if (!container) return;
+    
+    if (statuses.length === 0) {
+        container.innerHTML = `
+            <div style="padding: 40px; text-align: center; color: var(--text-secondary);">
+                <i class="fas fa-circle" style="font-size: 48px; margin-bottom: 16px; opacity: 0.5;"></i>
+                <p>Belum ada status</p>
+                <button class="primary-btn mt-3" onclick="showStatusUploadModal()" style="margin-top: 16px;">
+                    <i class="fas fa-plus"></i> Buat Status
+                </button>
+            </div>
+        `;
+        return;
+    }
+    
+    container.innerHTML = statuses.map(status => `
+        <div class="status-item" onclick="viewStatus('${status.id}')">
+            <img src="${status.userPhoto || ''}" alt="" class="status-avatar" 
+                 onerror="this.src='data:image/svg+xml,${encodeURIComponent('<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2248%22 height=%2248%22><rect width=%2248%22 height=%2248%22 fill=%22%23667eea%22/><text x=%2224%22 y=%2232%22 text-anchor=%22middle%22 fill=%22white%22 font-size=%2220%22>'+ (status.userName||'U')[0] +'</text></svg>')}'">
+            <div class="status-info">
+                <h4>${escapeHTML(status.userName || 'Pengguna')}</h4>
+                <p>${escapeHTML(status.caption || 'Tanpa caption')} • ${timeAgo(status.createdAt?.toDate?.() || Date.now())}</p>
+            </div>
+        </div>
+    `).join('');
+}
+
+// ==========================================
+// LIHAT STATUS
+// ==========================================
+function viewStatus(statusId) {
+    const statuses = getActiveStatuses();
+    const status = statuses.find(s => s.id === statusId);
+    
+    if (!status) {
+        showNotif('Status tidak ditemukan atau sudah expired', 'warning');
+        return;
+    }
+    
+    const modal = document.createElement('div');
+    modal.className = 'modal status-viewer';
+    modal.style.display = 'flex';
+    modal.innerHTML = `
+        <div class="status-viewer-content">
+            <button class="icon-btn" style="position: absolute; top: 20px; right: 20px; z-index: 10; color: white; background: rgba(255,255,255,0.1);" 
+                    onclick="this.closest('.modal').remove()">
+                <i class="fas fa-times"></i>
+            </button>
+            <img src="${status.data}" alt="Status" class="status-viewer-image">
+            ${status.caption ? `<div class="status-viewer-caption">${escapeHTML(status.caption)}</div>` : ''}
+            <div style="position: absolute; bottom: 20px; color: white; font-size: 12px; opacity: 0.8;">
+                ${timeAgo(status.createdAt)} • ${getTimeUntilExpiry(status.expiresAt)}
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.remove();
+    });
+    
+    // Auto close after 10 seconds
+    setTimeout(() => {
+        if (modal.parentNode) modal.remove();
+    }, 10000);
+}
+
+// ==========================================
+// HELPER FUNCTIONS
+// ==========================================
+function timeAgo(timestamp) {
+    const now = Date.now();
+    const then = timestamp instanceof Date ? timestamp.getTime() : timestamp;
+    const seconds = Math.floor((now - then) / 1000);
+    
+    if (seconds < 60) return 'Baru saja';
+    if (seconds < 3600) return `${Math.floor(seconds / 60)} menit`;
+    if (seconds < 86400) return `${Math.floor(seconds / 3600)} jam`;
+    return `${Math.floor(seconds / 86400)} hari`;
+}
+
+function getTimeUntilExpiry(expiresAt) {
+    const now = Date.now();
+    const seconds = Math.floor((expiresAt - now) / 1000);
+    
+    if (seconds < 0) return 'Expired';
+    if (seconds < 3600) return `${Math.floor(seconds / 60)}m lagi`;
+    if (seconds < 86400) return `${Math.floor(seconds / 3600)}j lagi`;
+    return `${Math.floor(seconds / 86400)}h lagi`;
+}
+
+// Auto cleanup expired statuses setiap 5 menit
+setInterval(() => {
+    getActiveStatuses(); // Ini akan otomatis membersihkan expired
+}, 5 * 60 * 1000);
+
+console.log('✅ Status module loaded');
