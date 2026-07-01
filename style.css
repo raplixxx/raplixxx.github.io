@@ -1,0 +1,52 @@
+/* style.css */
+:root {
+    --bg-primary: #f0f2f5;
+    --bg-secondary: #ffffff;
+    --bg-chat: #e5ddd5;
+    --bg-message-sent: #d9fdd3;
+    --bg-message-received: #ffffff;
+    --bg-input: #f0f2f5;
+    --text-primary: #111b21;
+    --text-secondary: #667781;
+    --text-message: #303030;
+    --border-color: #e9edef;
+    --accent-color: #00a884;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+    --shadow-lg: 0 4px 16px rgba(0,0,0,0.12);
+}
+
+[data-theme="dark"] {
+    --bg-primary: #111b21;
+    --bg-secondary: #1f2c33;
+    --bg-chat: #0b141a;
+    --bg-message-sent: #005c4b;
+    --bg-message-received: #202c33;
+    --bg-input: #2a3942;
+    --text-primary: #e9edef;
+    --text-secondary: #8696a0;
+    --text-message: #e9edef;
+    --border-color: #313d45;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    overflow: hidden;
+    height: 100vh;
+}
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateX(100%); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideOut {
+    to { opacity: 0; transform: translateX(100%); }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
