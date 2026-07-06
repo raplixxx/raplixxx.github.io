@@ -1,0 +1,2722 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RaflyChat - WhatsApp Clone</title>
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js">
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js">
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js">
+    </script>
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #25D366;
+            --primary-dark: #075E54;
+            --primary-light: #128C7E;
+            --secondary: #34B7F1;
+            --background: #efeae2;
+            --surface: #ffffff;
+            --text-primary: #111b21;
+            --text-secondary: #667781;
+            --border: #e9edef;
+            --shadow: 0 2px 5px rgba(0,0,0,0.1);
+            --danger: #ea0038;
+            --warning: #f5a623;
+            --bottom-nav-height: 65px;
+        }
+
+        body.dark-mode {
+            --background: #0b141a;
+            --surface: #1f2c33;
+            --text-primary: #e9edef;
+            --text-secondary: #8696a0;
+            --border: #2a3942;
+            --shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: var(--background);
+            color: var(--text-primary);
+            height: 100vh;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* ==================== LOGIN SCREEN ==================== */
+        #loginScreen {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            flex-direction: column;
+        }
+
+        .login-container {
+            background: var(--surface);
+            padding: 40px 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 420px;
+            width: 90%;
+            animation: slideUp 0.5s ease;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes scaleIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .login-container .app-logo {
+            font-size: 60px;
+            margin-bottom: 15px;
+            animation: scaleIn 0.5s ease;
+        }
+
+        .login-container h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+            color: var(--primary-dark);
+            font-weight: 700;
+        }
+
+        .login-container .subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+
+        .google-btn {
+            background: white;
+            color: #444;
+            border: 2px solid #ddd;
+            padding: 14px 30px;
+            border-radius: 50px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            font-weight: 500;
+            margin-bottom: 15px;
+        }
+
+        .google-btn:hover {
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transform: translateY(-2px);
+            border-color: var(--primary);
+        }
+
+        .google-btn i {
+            color: #4285F4;
+            font-size: 20px;
+        }
+
+        .start-chat-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px 30px;
+            border-radius: 50px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            font-weight: 600;
+            display: none;
+        }
+
+        .start-chat-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
+        }
+
+        /* ==================== SETUP PROFILE SCREEN ==================== */
+        #setupScreen {
+            display: none;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+        }
+
+        .setup-container {
+            background: var(--surface);
+            padding: 35px 25px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            max-width: 420px;
+            width: 90%;
+            animation: slideUp 0.5s ease;
+        }
+
+        .setup-container h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: var(--primary-dark);
+            font-size: 22px;
+        }
+
+        .setup-container .form-group {
+            margin-bottom: 18px;
+        }
+
+        .setup-container label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .setup-container input,
+        .setup-container textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 15px;
+            background: var(--background);
+            color: var(--text-primary);
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .setup-container input:focus,
+        .setup-container textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 211, 102, 0.1);
+        }
+
+        .setup-container textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        .access-code-display {
+            background: var(--primary);
+            color: white;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            letter-spacing: 8px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            user-select: all;
+        }
+
+        .access-code-display:hover {
+            background: var(--primary-dark);
+            transform: scale(1.02);
+        }
+
+        .profile-photo-upload {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: var(--border);
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            overflow: hidden;
+            position: relative;
+            transition: all 0.3s;
+            border: 3px dashed var(--primary);
+        }
+
+        .profile-photo-upload:hover {
+            border-color: var(--primary-dark);
+            transform: scale(1.05);
+        }
+
+        .profile-photo-upload img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-photo-upload .upload-placeholder {
+            font-size: 40px;
+            color: var(--text-secondary);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: 600;
+            transition: all 0.3s;
+            margin-top: 5px;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(37, 211, 102, 0.3);
+        }
+
+        .btn-primary:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* ==================== MAIN APP SCREEN ==================== */
+        #appScreen {
+            display: none;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .app-header {
+            background: var(--primary-dark);
+            color: white;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 100;
+            min-height: 60px;
+        }
+
+        .app-header .header-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 20px;
+        }
+
+        .header-actions button {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .header-actions button:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        /* Main Content Area */
+        .main-content {
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .tab-content {
+            display: none;
+            height: 100%;
+            overflow-y: auto;
+        }
+
+        .tab-content.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ==================== CHATS TAB ==================== */
+        #chatsTab {
+            flex-direction: column;
+        }
+
+        .search-bar {
+            padding: 12px 15px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            background: var(--background);
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        .search-bar input:focus {
+            outline: 2px solid var(--primary);
+        }
+
+        .add-contact-bar {
+            padding: 10px 15px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .add-contact-btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .add-contact-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .chat-list {
+            flex: 1;
+            overflow-y: auto;
+            background: var(--surface);
+        }
+
+        .chat-item {
+            padding: 15px 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-bottom: 1px solid var(--border);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .chat-item:hover {
+            background: var(--background);
+        }
+
+        .chat-item:active {
+            background: var(--border);
+        }
+
+        .chat-avatar {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            color: white;
+            flex-shrink: 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .chat-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .online-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #31a24c;
+            border: 2px solid white;
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+        }
+
+        .chat-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .chat-name {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .chat-last-message {
+            font-size: 13px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .chat-meta {
+            text-align: right;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 5px;
+        }
+
+        .chat-time {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .unread-badge {
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        /* ==================== CHAT ROOM ==================== */
+        .chat-room {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+            background: var(--background);
+        }
+
+        .chat-room.active {
+            display: flex;
+        }
+
+        .chat-room-header {
+            background: var(--primary-dark);
+            color: white;
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-height: 55px;
+        }
+
+        .chat-room-header .back-btn {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .chat-room-header .contact-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: var(--primary-dark);
+            overflow: hidden;
+        }
+
+        .chat-room-header .contact-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .chat-room-header .contact-info {
+            flex: 1;
+        }
+
+        .chat-room-header .contact-name {
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .chat-room-header .contact-status {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="%23ddd"><circle cx="50" cy="50" r="40" fill="none" stroke="%23e0e0e0" stroke-width="0.3"/></svg>');
+            background-size: 200px;
+        }
+
+        .message {
+            max-width: 75%;
+            padding: 8px 12px;
+            border-radius: 8px;
+            position: relative;
+            animation: messageIn 0.3s ease;
+            word-wrap: break-word;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        @keyframes messageIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.sent {
+            background: #d9fdd3;
+            align-self: flex-end;
+            border-radius: 8px 0 8px 8px;
+        }
+
+        .message.received {
+            background: var(--surface);
+            align-self: flex-start;
+            border-radius: 0 8px 8px 8px;
+        }
+
+        .message-sender {
+            font-weight: 600;
+            font-size: 11px;
+            color: var(--primary-dark);
+            margin-bottom: 3px;
+        }
+
+        .message-time {
+            font-size: 10px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+            text-align: right;
+        }
+
+        .message-actions {
+            display: none;
+            position: absolute;
+            top: -10px;
+            right: 10px;
+            background: var(--surface);
+            border-radius: 20px;
+            padding: 4px 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            gap: 6px;
+            z-index: 10;
+            white-space: nowrap;
+        }
+
+        .message:hover .message-actions {
+            display: flex;
+        }
+
+        .message-actions button {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            padding: 4px 6px;
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+
+        .message-actions button:hover {
+            background: rgba(0,0,0,0.1);
+        }
+
+        .message-reactions {
+            display: flex;
+            gap: 4px;
+            margin-top: 4px;
+            flex-wrap: wrap;
+        }
+
+        .reaction-badge {
+            background: var(--surface);
+            border-radius: 10px;
+            padding: 2px 6px;
+            font-size: 11px;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: all 0.2s;
+        }
+
+        .reaction-badge:hover {
+            transform: scale(1.1);
+        }
+
+        .reply-preview {
+            background: rgba(0,0,0,0.05);
+            padding: 6px 10px;
+            border-left: 4px solid var(--primary);
+            margin-bottom: 4px;
+            border-radius: 4px;
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        .voice-note-player {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 5px;
+        }
+
+        .voice-note-player audio {
+            height: 35px;
+            width: 200px;
+        }
+
+        .message-input-area {
+            background: var(--surface);
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-top: 1px solid var(--border);
+        }
+
+        .message-input-area input {
+            flex: 1;
+            padding: 12px 18px;
+            border: none;
+            border-radius: 25px;
+            background: var(--background);
+            color: var(--text-primary);
+            font-size: 15px;
+        }
+
+        .message-input-area input:focus {
+            outline: 2px solid var(--primary);
+        }
+
+        .icon-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 22px;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .icon-btn:hover {
+            background: rgba(0,0,0,0.1);
+            color: var(--primary);
+        }
+
+        .send-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .send-btn:hover {
+            background: var(--primary-dark);
+            transform: scale(1.05);
+        }
+
+        .record-btn.recording {
+            background: var(--danger) !important;
+            color: white !important;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+        }
+
+        /* ==================== STATUS TAB ==================== */
+        #statusTab {
+            background: var(--surface);
+            padding: 15px;
+        }
+
+        .status-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .status-header h3 {
+            font-size: 18px;
+        }
+
+        .add-status-btn {
+            background: var(--primary);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            transition: all 0.3s;
+        }
+
+        .add-status-btn:hover {
+            background: var(--primary-dark);
+            transform: rotate(90deg);
+        }
+
+        .my-status {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: var(--background);
+            border-radius: 15px;
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
+
+        .status-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 15px;
+            background: var(--background);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .status-item:hover {
+            transform: translateX(5px);
+        }
+
+        .status-circle {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+            padding: 3px;
+            flex-shrink: 0;
+        }
+
+        .status-circle-inner {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: var(--surface);
+            overflow: hidden;
+        }
+
+        .status-circle-inner img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* ==================== CALLS TAB (Coming Soon) ==================== */
+        #callsTab {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            background: var(--surface);
+            gap: 15px;
+        }
+
+        #callsTab .coming-soon-icon {
+            font-size: 80px;
+            opacity: 0.5;
+        }
+
+        #callsTab h3 {
+            font-size: 20px;
+            color: var(--text-secondary);
+        }
+
+        #callsTab p {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        /* ==================== BOTTOM NAVIGATION ==================== */
+        .bottom-nav {
+            background: var(--surface);
+            display: flex;
+            border-top: 1px solid var(--border);
+            min-height: var(--bottom-nav-height);
+            z-index: 100;
+        }
+
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-secondary);
+            padding: 8px 0;
+            position: relative;
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+        }
+
+        .nav-item i {
+            font-size: 22px;
+            transition: all 0.3s;
+        }
+
+        .nav-item.active i {
+            transform: scale(1.1);
+        }
+
+        .nav-item span {
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .nav-badge {
+            position: absolute;
+            top: 5px;
+            right: 50%;
+            transform: translateX(20px);
+            background: var(--danger);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        /* ==================== MODALS ==================== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--surface);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 450px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: scaleIn 0.3s ease;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .modal h3 {
+            margin-bottom: 20px;
+            font-size: 20px;
+            color: var(--text-primary);
+        }
+
+        .modal input,
+        .modal textarea {
+            width: 100%;
+            padding: 12px 15px;
+            margin-bottom: 12px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            background: var(--background);
+            color: var(--text-primary);
+            font-size: 15px;
+            font-family: inherit;
+        }
+
+        .modal input:focus,
+        .modal textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .modal-buttons button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .btn-save {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-save:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-cancel {
+            background: var(--border);
+            color: var(--text-primary);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        /* ==================== SETTINGS PAGE ==================== */
+        .settings-page {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--background);
+            z-index: 500;
+            flex-direction: column;
+            animation: slideUp 0.3s ease;
+        }
+
+        .settings-page.show {
+            display: flex;
+        }
+
+        .settings-header {
+            background: var(--primary-dark);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .settings-header button {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .settings-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .settings-section {
+            background: var(--surface);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .settings-section h4 {
+            margin-bottom: 15px;
+            color: var(--primary-dark);
+            font-size: 16px;
+        }
+
+        .settings-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+        }
+
+        .settings-item:last-child {
+            border-bottom: none;
+        }
+
+        .settings-item .item-label {
+            font-weight: 500;
+        }
+
+        .settings-item .item-value {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .toggle-switch {
+            width: 50px;
+            height: 28px;
+            background: #ccc;
+            border-radius: 14px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .toggle-switch.active {
+            background: var(--primary);
+        }
+
+        .toggle-switch::after {
+            content: '';
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: all 0.3s;
+        }
+
+        .toggle-switch.active::after {
+            left: 24px;
+        }
+
+        /* ==================== NOTIFICATION TOAST ==================== */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 14px 20px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 500;
+            z-index: 2000;
+            animation: slideInRight 0.3s ease;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            max-width: 350px;
+            font-size: 14px;
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .toast.success { background: #25D366; }
+        .toast.error { background: #ea0038; }
+        .toast.info { background: #34B7F1; }
+
+        /* ==================== LOADING SPINNER ==================== */
+        .spinner {
+            width: 35px;
+            height: 35px;
+            border: 4px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ==================== RESPONSIVE ==================== */
+        @media (max-width: 768px) {
+            .message {
+                max-width: 85%;
+            }
+            
+            .modal {
+                max-width: 95%;
+                padding: 20px;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .main-content {
+                max-width: 900px;
+                margin: 0 auto;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ==================== LOGIN SCREEN ==================== -->
+    <div id="loginScreen">
+        <div class="login-container">
+            <div class="app-logo">💬</div>
+            <h1>RaflyChat</h1>
+            <p class="subtitle">Chat aman dengan username & kode akses</p>
+            <button class="google-btn" id="googleLoginBtn" onclick="loginWithGoogle()">
+                <i class="fab fa-google"></i>
+                Masuk dengan Google
+            </button>
+            <button class="start-chat-btn" id="startChatBtn" onclick="showSetupScreen()" style="display:none;">
+                🚀 Mulai Mengobrol
+            </button>
+            <div class="spinner" id="loginSpinner" style="display:none;"></div>
+        </div>
+    </div>
+
+    <!-- ==================== SETUP SCREEN ==================== -->
+    <div id="setupScreen">
+        <div class="setup-container">
+            <h2>📝 Atur Profil Kamu</h2>
+            
+            <div class="profile-photo-upload" onclick="document.getElementById('profilePhotoInput').click()">
+                <img id="profilePhotoPreview" style="display:none;">
+                <span class="upload-placeholder" id="uploadPlaceholder">📷</span>
+            </div>
+            <input type="file" id="profilePhotoInput" accept="image/*" style="display:none;" onchange="previewProfilePhoto(event)">
+            
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" id="setupUsername" placeholder="Contoh: raflykeren" maxlength="30">
+            </div>
+            
+            <div class="form-group">
+                <label>Kode Akses (4 Digit)</label>
+                <div class="access-code-display" id="accessCodeDisplay" onclick="copyAccessCode()">
+                    ----
+                </div>
+                <small style="color: var(--text-secondary);">Klik untuk menyalin. Bagikan ke temanmu!</small>
+            </div>
+            
+            <div class="form-group">
+                <label>Nama Panggilan</label>
+                <input type="text" id="setupDisplayName" placeholder="Nama yang akan ditampilkan" maxlength="50">
+            </div>
+            
+            <div class="form-group">
+                <label>Deskripsi / Bio (Opsional)</label>
+                <textarea id="setupBio" placeholder="Tulis sesuatu tentang dirimu..." maxlength="150"></textarea>
+            </div>
+            
+            <button class="btn-primary" onclick="saveProfile()">
+                ✅ Simpan & Mulai
+            </button>
+            <div class="spinner" id="setupSpinner" style="display:none;"></div>
+        </div>
+    </div>
+
+    <!-- ==================== MAIN APP SCREEN ==================== -->
+    <div id="appScreen">
+        <!-- Header -->
+        <div class="app-header">
+            <div class="header-title" id="headerTitle">RaflyChat</div>
+            <div class="header-actions">
+                <button onclick="openSettings()" title="Pengaturan">
+                    <i class="fas fa-cog"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Chats Tab -->
+            <div class="tab-content active" id="chatsTab">
+                <div class="search-bar">
+                    <input type="text" id="chatSearchInput" placeholder="🔍 Cari chat..." oninput="filterChats()">
+                </div>
+                <div class="add-contact-bar">
+                    <button class="add-contact-btn" onclick="showAddContactModal()">
+                        <i class="fas fa-user-plus"></i> Tambah Kontak Baru
+                    </button>
+                </div>
+                <div class="chat-list" id="chatList">
+                    <div style="text-align:center; padding:40px; color: var(--text-secondary);">
+                        <i class="fas fa-comments" style="font-size:50px; opacity:0.3; margin-bottom:15px; display:block;"></i>
+                        Belum ada chat. Tambah kontak untuk mulai!
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status Tab -->
+            <div class="tab-content" id="statusTab">
+                <div class="status-header">
+                    <h3>Status</h3>
+                    <button class="add-status-btn" onclick="showUploadStatusModal()">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+                <div class="my-status" onclick="showUploadStatusModal()">
+                    <div class="status-circle">
+                        <div class="status-circle-inner" id="myStatusPreview"></div>
+                    </div>
+                    <div>
+                        <div style="font-weight:600;">Status Saya</div>
+                        <div style="font-size:13px; color: var(--text-secondary);">Ketuk untuk tambah status</div>
+                    </div>
+                </div>
+                <div class="status-list" id="statusList">
+                    <div style="text-align:center; padding:20px; color: var(--text-secondary);">
+                        Belum ada status terbaru
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calls Tab (Coming Soon) -->
+            <div class="tab-content" id="callsTab">
+                <div class="coming-soon-icon">📞</div>
+                <h3>Panggilan</h3>
+                <p>Fitur panggilan akan segera hadir!</p>
+                <small style="color: var(--text-secondary);">Coming Soon</small>
+            </div>
+
+            <!-- Chat Room (Hidden by default) -->
+            <div class="chat-room" id="chatRoom">
+                <div class="chat-room-header">
+                    <button class="back-btn" onclick="closeChatRoom()">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <div class="contact-avatar" id="chatRoomAvatar"></div>
+                    <div class="contact-info">
+                        <div class="contact-name" id="chatRoomName"></div>
+                        <div class="contact-status" id="chatRoomStatus">Offline</div>
+                    </div>
+                    <div style="display:flex; gap:5px;">
+                        <button class="icon-btn" style="color:white;" onclick="viewContactProfile()" title="Lihat Profil">
+                            <i class="fas fa-info-circle"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="messages-container" id="messagesContainer">
+                    <div class="spinner" id="messagesSpinner"></div>
+                </div>
+                <div class="message-input-area">
+                    <button class="icon-btn record-btn" id="recordBtn" onclick="toggleVoiceRecord()" title="Voice Note">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <input type="text" id="messageInput" placeholder="Ketik pesan..." 
+                           onkeypress="if(event.key==='Enter') sendMessage()">
+                    <button class="send-btn" onclick="sendMessage()">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <div class="nav-item active" data-tab="chatsTab" onclick="switchTab('chatsTab')">
+                <i class="fas fa-comment-dots"></i>
+                <span>Chat</span>
+                <div class="nav-badge" id="chatBadge" style="display:none;">0</div>
+            </div>
+            <div class="nav-item" data-tab="statusTab" onclick="switchTab('statusTab')">
+                <i class="fas fa-circle-notch"></i>
+                <span>Status</span>
+            </div>
+            <div class="nav-item" data-tab="callsTab" onclick="switchTab('callsTab')">
+                <i class="fas fa-phone-alt"></i>
+                <span>Panggilan</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== MODALS ==================== -->
+    <!-- Add Contact Modal -->
+    <div class="modal-overlay" id="addContactModal">
+        <div class="modal">
+            <h3>➕ Tambah Kontak</h3>
+            <input type="text" id="contactUsernameInput" placeholder="Masukkan username teman">
+            <input type="text" id="contactAccessCodeInput" placeholder="Masukkan kode akses 4 digit" maxlength="4">
+            <div class="modal-buttons">
+                <button class="btn-cancel" onclick="closeModal('addContactModal')">Batal</button>
+                <button class="btn-save" onclick="addContact()">Tambah</button>
+            </div>
+            <div class="spinner" id="addContactSpinner" style="display:none;"></div>
+        </div>
+    </div>
+
+    <!-- Upload Status Modal -->
+    <div class="modal-overlay" id="uploadStatusModal">
+        <div class="modal">
+            <h3>📸 Upload Status</h3>
+            <input type="file" id="statusImageInput" accept="image/*">
+            <textarea id="statusCaptionInput" placeholder="Tulis caption..."></textarea>
+            <div class="modal-buttons">
+                <button class="btn-cancel" onclick="closeModal('uploadStatusModal')">Batal</button>
+                <button class="btn-save" onclick="uploadStatus()">Upload</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Status Modal -->
+    <div class="modal-overlay" id="viewStatusModal">
+        <div class="modal" style="text-align:center;">
+            <img id="viewStatusImage" style="width:100%; border-radius:15px; margin-bottom:15px;">
+            <p id="viewStatusCaption" style="color: var(--text-secondary);"></p>
+            <button class="btn-cancel" onclick="closeModal('viewStatusModal')" style="margin-top:10px;">Tutup</button>
+        </div>
+    </div>
+
+    <!-- Contact Profile Modal -->
+    <div class="modal-overlay" id="contactProfileModal">
+        <div class="modal" style="text-align:center;">
+            <div style="width:80px;height:80px;border-radius:50%;background:var(--primary);margin:0 auto 15px;display:flex;align-items:center;justify-content:center;font-size:30px;color:white;overflow:hidden;" id="profileModalAvatar"></div>
+            <h3 id="profileModalName"></h3>
+            <p style="color:var(--text-secondary);margin:5px 0;" id="profileModalUsername"></p>
+            <p style="margin:10px 0;" id="profileModalBio"></p>
+            <button class="btn-danger" onclick="deleteChat()" style="margin-top:10px;">🗑️ Hapus Chat</button>
+            <button class="btn-cancel" onclick="closeModal('contactProfileModal')" style="margin-top:5px;">Tutup</button>
+        </div>
+    </div>
+
+    <!-- ==================== SETTINGS PAGE ==================== -->
+    <div class="settings-page" id="settingsPage">
+        <div class="settings-header">
+            <button onclick="closeSettings()"><i class="fas fa-arrow-left"></i></button>
+            <h3>Pengaturan</h3>
+        </div>
+        <div class="settings-content">
+            <!-- Profile Section -->
+            <div class="settings-section">
+                <h4>👤 Profil Saya</h4>
+                <div style="display:flex; align-items:center; gap:15px; margin-bottom:15px;">
+                    <div style="width:60px;height:60px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;font-size:25px;color:white;overflow:hidden;" id="settingsAvatar"></div>
+                    <div>
+                        <div style="font-weight:600;font-size:16px;" id="settingsName"></div>
+                        <div style="color:var(--text-secondary);font-size:13px;" id="settingsUsername"></div>
+                    </div>
+                </div>
+                <button class="btn-primary" onclick="editProfile()" style="width:auto; padding:10px 20px;">
+                    ✏️ Edit Profil
+                </button>
+            </div>
+
+            <!-- Account Section -->
+            <div class="settings-section">
+                <h4>🔐 Akun</h4>
+                <div class="settings-item" onclick="copyAccessCode()">
+                    <span class="item-label">Kode Akses Saya</span>
+                    <span class="item-value" id="settingsAccessCode">----</span>
+                </div>
+                <div class="settings-item">
+                    <span class="item-label">Email</span>
+                    <span class="item-value" id="settingsEmail"></span>
+                </div>
+            </div>
+
+            <!-- Preferences Section -->
+            <div class="settings-section">
+                <h4>🎨 Preferensi</h4>
+                <div class="settings-item" onclick="toggleDarkMode()">
+                    <span class="item-label">Dark Mode</span>
+                    <div class="toggle-switch" id="darkModeToggle"></div>
+                </div>
+                <div class="settings-item" onclick="toggleNotifications()">
+                    <span class="item-label">Notifikasi</span>
+                    <div class="toggle-switch active" id="notifToggle"></div>
+                </div>
+            </div>
+
+            <!-- Danger Zone -->
+            <div class="settings-section">
+                <h4>⚠️ Zona Berbahaya</h4>
+                <button class="btn-danger" onclick="logout()" style="width:100%;">
+                    🚪 Keluar / Logout
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div class="modal-overlay" id="editProfileModal">
+        <div class="modal">
+            <h3>✏️ Edit Profil</h3>
+            <div class="profile-photo-upload" onclick="document.getElementById('editPhotoInput').click()" style="margin:0 auto 20px;">
+                <img id="editPhotoPreview" style="display:none;">
+                <span class="upload-placeholder" id="editUploadPlaceholder">📷</span>
+            </div>
+            <input type="file" id="editPhotoInput" accept="image/*" style="display:none;" onchange="previewEditPhoto(event)">
+            <input type="text" id="editDisplayName" placeholder="Nama Panggilan">
+            <textarea id="editBio" placeholder="Deskripsi / Bio"></textarea>
+            <div class="modal-buttons">
+                <button class="btn-cancel" onclick="closeModal('editProfileModal')">Batal</button>
+                <button class="btn-save" onclick="saveEditedProfile()">Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast" style="display:none;"></div>
+
+    <script>
+        // ============================================
+        // FIREBASE CONFIGURATION
+        // ============================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyDl9TVQ9B6G-PY6PtQJjyPkrqDMqeMhkrE",
+            authDomain: "wa-clone-rafly.firebaseapp.com",
+            projectId: "wa-clone-rafly",
+            storageBucket: "wa-clone-rafly.firebasestorage.app",
+            messagingSenderId: "217952329083",
+            appId: "1:217952329083:web:644aafe82e9b40794b31de"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // ============================================
+        // GLOBAL STATE
+        // ============================================
+        let currentUser = null;
+        let userProfile = null;
+        let currentChatPartner = null;
+        let allChats = [];
+        let messageListener = null;
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let isRecording = false;
+        let replyMessage = null;
+        let generatedAccessCode = '';
+
+        // ============================================
+        // AUTHENTICATION
+        // ============================================
+        async function loginWithGoogle() {
+            const spinner = document.getElementById('loginSpinner');
+            spinner.style.display = 'block';
+            
+            try {
+                const provider = new firebase.auth.GoogleAuthProvider();
+                const result = await auth.signInWithPopup(provider);
+                currentUser = result.user;
+                
+                // Check if user profile exists
+                const userDoc = await db.collection('users').doc(currentUser.uid).get();
+                
+                if (userDoc.exists) {
+                    userProfile = userDoc.data();
+                    await initializeApp();
+                } else {
+                    // Show start chat button
+                    document.getElementById('googleLoginBtn').style.display = 'none';
+                    document.getElementById('startChatBtn').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showToast('Gagal login: ' + error.message, 'error');
+            } finally {
+                spinner.style.display = 'none';
+            }
+        }
+
+        function showSetupScreen() {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('setupScreen').style.display = 'flex';
+            
+            // Generate access code
+            generatedAccessCode = Math.floor(1000 + Math.random() * 9000).toString();
+            document.getElementById('accessCodeDisplay').textContent = generatedAccessCode;
+            
+            // Pre-fill display name
+            if (currentUser) {
+                document.getElementById('setupDisplayName').value = currentUser.displayName || '';
+            }
+        }
+
+        function previewProfilePhoto(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    document.getElementById('profilePhotoPreview').src = e.target.result;
+                    document.getElementById('profilePhotoPreview').style.display = 'block';
+                    document.getElementById('uploadPlaceholder').style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function previewEditPhoto(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    document.getElementById('editPhotoPreview').src = e.target.result;
+                    document.getElementById('editPhotoPreview').style.display = 'block';
+                    document.getElementById('editUploadPlaceholder').style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        async function saveProfile() {
+            const username = document.getElementById('setupUsername').value.trim();
+            const displayName = document.getElementById('setupDisplayName').value.trim();
+            const bio = document.getElementById('setupBio').value.trim();
+            const photoInput = document.getElementById('profilePhotoInput');
+            
+            if (!username) {
+                showToast('Username wajib diisi!', 'error');
+                return;
+            }
+            
+            if (!displayName) {
+                showToast('Nama panggilan wajib diisi!', 'error');
+                return;
+            }
+            
+            // Check username uniqueness
+            const existingUser = await db.collection('users')
+                .where('username', '==', username.toLowerCase())
+                .where('uid', '!=', currentUser.uid)
+                .get();
+            
+            if (!existingUser.empty) {
+                showToast('Username sudah digunakan!', 'error');
+                return;
+            }
+            
+            const spinner = document.getElementById('setupSpinner');
+            spinner.style.display = 'block';
+            
+            try {
+                let photoURL = '';
+                if (photoInput.files[0]) {
+                    const reader = new FileReader();
+                    photoURL = await new Promise((resolve) => {
+                        reader.onload = (e) => resolve(e.target.result);
+                        reader.readAsDataURL(photoInput.files[0]);
+                    });
+                }
+                
+                userProfile = {
+                    uid: currentUser.uid,
+                    email: currentUser.email,
+                    username: username.toLowerCase(),
+                    displayName: displayName,
+                    bio: bio,
+                    photoURL: photoURL,
+                    accessCode: generatedAccessCode,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                
+                await db.collection('users').doc(currentUser.uid).set(userProfile);
+                
+                showToast('Profil berhasil disimpan!', 'success');
+                await initializeApp();
+            } catch (error) {
+                console.error('Error saving profile:', error);
+                showToast('Gagal menyimpan profil', 'error');
+            } finally {
+                spinner.style.display = 'none';
+            }
+        }
+
+        function copyAccessCode() {
+            const code = userProfile?.accessCode || generatedAccessCode;
+            if (code) {
+                navigator.clipboard.writeText(code).then(() => {
+                    showToast('Kode akses disalin! Bagikan ke temanmu.', 'success');
+                });
+            }
+        }
+
+        // ============================================
+        // INITIALIZE APP
+        // ============================================
+        async function initializeApp() {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('setupScreen').style.display = 'none';
+            document.getElementById('appScreen').style.display = 'flex';
+            
+            // Load user profile if not loaded
+            if (!userProfile) {
+                const userDoc = await db.collection('users').doc(currentUser.uid).get();
+                if (userDoc.exists) {
+                    userProfile = userDoc.data();
+                }
+            }
+            
+            // Check dark mode
+            const hour = new Date().getHours();
+            const savedDarkMode = localStorage.getItem('darkMode');
+            if (savedDarkMode === 'true' || (!savedDarkMode && (hour >= 18 || hour < 6))) {
+                document.body.classList.add('dark-mode');
+                document.getElementById('darkModeToggle')?.classList.add('active');
+            }
+            
+            updateSettingsUI();
+            loadChats();
+            loadStatuses();
+            setupOnlineStatus();
+            requestNotificationPermission();
+        }
+
+        function updateSettingsUI() {
+            if (!userProfile) return;
+            
+            document.getElementById('settingsName').textContent = userProfile.displayName;
+            document.getElementById('settingsUsername').textContent = '@' + userProfile.username;
+            document.getElementById('settingsEmail').textContent = userProfile.email;
+            document.getElementById('settingsAccessCode').textContent = userProfile.accessCode;
+            
+            if (userProfile.photoURL) {
+                document.getElementById('settingsAvatar').innerHTML = `<img src="${userProfile.photoURL}" style="width:100%;height:100%;object-fit:cover;">`;
+            } else {
+                document.getElementById('settingsAvatar').textContent = userProfile.displayName.charAt(0).toUpperCase();
+            }
+        }
+
+        // ============================================
+        // ONLINE STATUS
+        // ============================================
+        function setupOnlineStatus() {
+            if (!currentUser || !userProfile) return;
+            
+            const userRef = db.collection('users').doc(currentUser.uid);
+            
+            userRef.update({ online: true });
+            
+            window.addEventListener('beforeunload', () => {
+                userRef.update({ online: false, lastSeen: firebase.firestore.FieldValue.serverTimestamp() });
+            });
+            
+            window.addEventListener('online', () => userRef.update({ online: true }));
+            window.addEventListener('offline', () => userRef.update({ online: false }));
+        }
+
+        // ============================================
+        // CONTACTS & CHATS
+        // ============================================
+        async function addContact() {
+            const username = document.getElementById('contactUsernameInput').value.trim().toLowerCase();
+            const accessCode = document.getElementById('contactAccessCodeInput').value.trim();
+            
+            if (!username || !accessCode) {
+                showToast('Username dan kode akses wajib diisi!', 'error');
+                return;
+            }
+            
+            if (username === userProfile.username) {
+                showToast('Tidak bisa menambah diri sendiri!', 'error');
+                return;
+            }
+            
+            const spinner = document.getElementById('addContactSpinner');
+            spinner.style.display = 'block';
+            
+            try {
+                const userSnapshot = await db.collection('users')
+                    .where('username', '==', username)
+                    .where('accessCode', '==', accessCode)
+                    .limit(1)
+                    .get();
+                
+                if (userSnapshot.empty) {
+                    showToast('Username atau kode akses tidak valid!', 'error');
+                    return;
+                }
+                
+                const contactData = userSnapshot.docs[0].data();
+                
+                // Check if chat already exists
+                const existingChat = await db.collection('chats')
+                    .where('participants', 'array-contains', currentUser.uid)
+                    .get();
+                
+                let chatExists = false;
+                existingChat.forEach(doc => {
+                    if (doc.data().participants.includes(contactData.uid)) {
+                        chatExists = true;
+                    }
+                });
+                
+                if (chatExists) {
+                    showToast('Kontak sudah ada di daftar chat!', 'info');
+                    closeModal('addContactModal');
+                    return;
+                }
+                
+                // Create chat
+                await db.collection('chats').add({
+                    participants: [currentUser.uid, contactData.uid],
+                    participantProfiles: {
+                        [currentUser.uid]: {
+                            username: userProfile.username,
+                            displayName: userProfile.displayName,
+                            photoURL: userProfile.photoURL
+                        },
+                        [contactData.uid]: {
+                            username: contactData.username,
+                            displayName: contactData.displayName,
+                            photoURL: contactData.photoURL
+                        }
+                    },
+                    lastMessage: '',
+                    lastMessageTime: firebase.firestore.FieldValue.serverTimestamp(),
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                closeModal('addContactModal');
+                document.getElementById('contactUsernameInput').value = '';
+                document.getElementById('contactAccessCodeInput').value = '';
+                showToast('Kontak berhasil ditambahkan!', 'success');
+                loadChats();
+            } catch (error) {
+                console.error('Error adding contact:', error);
+                showToast('Gagal menambah kontak', 'error');
+            } finally {
+                spinner.style.display = 'none';
+            }
+        }
+
+        async function loadChats() {
+            if (!currentUser || !userProfile) return;
+            
+            try {
+                const snapshot = await db.collection('chats')
+                    .where('participants', 'array-contains', currentUser.uid)
+                    .orderBy('lastMessageTime', 'desc')
+                    .get();
+                
+                allChats = [];
+                snapshot.forEach(doc => {
+                    allChats.push({ id: doc.id, ...doc.data() });
+                });
+                
+                renderChatList();
+            } catch (error) {
+                console.error('Error loading chats:', error);
+            }
+        }
+
+        function renderChatList(filterText = '') {
+            const chatList = document.getElementById('chatList');
+            
+            let filteredChats = allChats;
+            if (filterText) {
+                const search = filterText.toLowerCase();
+                filteredChats = allChats.filter(chat => {
+                    const partnerId = chat.participants.find(id => id !== currentUser.uid);
+                    const partnerProfile = chat.participantProfiles?.[partnerId];
+                    return partnerProfile?.displayName?.toLowerCase().includes(search) ||
+                           partnerProfile?.username?.toLowerCase().includes(search);
+                });
+            }
+            
+            if (filteredChats.length === 0) {
+                chatList.innerHTML = `
+                    <div style="text-align:center; padding:40px; color: var(--text-secondary);">
+                        <i class="fas fa-comments" style="font-size:50px; opacity:0.3; margin-bottom:15px; display:block;"></i>
+                        ${filterText ? 'Tidak ada hasil pencarian' : 'Belum ada chat. Tambah kontak untuk mulai!'}
+                    </div>
+                `;
+                return;
+            }
+            
+            chatList.innerHTML = filteredChats.map(chat => {
+                const partnerId = chat.participants.find(id => id !== currentUser.uid);
+                const partnerProfile = chat.participantProfiles?.[partnerId] || {};
+                const initial = (partnerProfile.displayName || 'U').charAt(0).toUpperCase();
+                const time = chat.lastMessageTime?.toDate?.() || new Date();
+                const timeStr = formatTime(time);
+                
+                return `
+                    <div class="chat-item" onclick="openChat('${chat.id}', '${partnerId}')">
+                        <div class="chat-avatar">
+                            ${partnerProfile.photoURL ? 
+                                `<img src="${partnerProfile.photoURL}" alt="">` : 
+                                initial}
+                            <div class="online-dot" id="onlineDot-${partnerId}"></div>
+                        </div>
+                        <div class="chat-info">
+                            <div class="chat-name">${escapeHtml(partnerProfile.displayName || 'Unknown')}</div>
+                            <div class="chat-last-message">${escapeHtml(chat.lastMessage || 'Mulai chat')}</div>
+                        </div>
+                        <div class="chat-meta">
+                            <div class="chat-time">${timeStr}</div>
+                            ${chat.unreadCount ? `<div class="unread-badge">${chat.unreadCount}</div>` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            // Update online status dots
+            updateOnlineDots();
+        }
+
+        function filterChats() {
+            const searchText = document.getElementById('chatSearchInput').value;
+            renderChatList(searchText);
+        }
+
+        async function updateOnlineDots() {
+            for (const chat of allChats) {
+                const partnerId = chat.participants.find(id => id !== currentUser.uid);
+                try {
+                    const userDoc = await db.collection('users').doc(partnerId).get();
+                    const dot = document.getElementById(`onlineDot-${partnerId}`);
+                    if (dot && userDoc.exists) {
+                        dot.style.display = userDoc.data().online ? 'block' : 'none';
+                    }
+                } catch (e) {}
+            }
+        }
+
+        function openChat(chatId, partnerId) {
+            currentChatPartner = { chatId, partnerId };
+            
+            // Get partner profile
+            const chat = allChats.find(c => c.id === chatId);
+            const partnerProfile = chat?.participantProfiles?.[partnerId] || {};
+            
+            document.getElementById('chatRoomAvatar').innerHTML = partnerProfile.photoURL ? 
+                `<img src="${partnerProfile.photoURL}" style="width:100%;height:100%;object-fit:cover;">` :
+                (partnerProfile.displayName || 'U').charAt(0).toUpperCase();
+            document.getElementById('chatRoomName').textContent = partnerProfile.displayName || 'Unknown';
+            
+            // Hide tabs and show chat room
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.getElementById('chatRoom').classList.add('active');
+            
+            loadMessages(chatId);
+            
+            // Update header for mobile
+            document.getElementById('headerTitle').textContent = partnerProfile.displayName || 'Chat';
+        }
+
+        function closeChatRoom() {
+            document.getElementById('chatRoom').classList.remove('active');
+            document.getElementById('chatsTab').classList.add('active');
+            document.getElementById('headerTitle').textContent = 'RaflyChat';
+            currentChatPartner = null;
+            
+            if (messageListener) {
+                messageListener();
+                messageListener = null;
+            }
+            
+            loadChats();
+        }
+
+        // ============================================
+        // MESSAGING
+        // ============================================
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const text = input.value.trim();
+            
+            if (!text || !currentChatPartner) return;
+            
+            // Check for @bot command
+            if (text.startsWith('@bot')) {
+                await handleBotCommand(text);
+                input.value = '';
+                return;
+            }
+            
+            try {
+                const messageData = {
+                    text: text,
+                    senderId: currentUser.uid,
+                    senderName: userProfile.displayName,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    replyTo: replyMessage ? {
+                        messageId: replyMessage.id,
+                        text: replyMessage.text,
+                        senderName: replyMessage.senderName
+                    } : null,
+                    reactions: {},
+                    edited: false,
+                    type: 'text'
+                };
+                
+                await db.collection('chats').doc(currentChatPartner.chatId)
+                    .collection('messages').add(messageData);
+                
+                // Update last message
+                await db.collection('chats').doc(currentChatPartner.chatId).update({
+                    lastMessage: text.substring(0, 50),
+                    lastMessageTime: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                input.value = '';
+                replyMessage = null;
+                removeReplyPreview();
+                
+                // Send notification
+                sendNotification(userProfile.displayName, text.substring(0, 100));
+            } catch (error) {
+                console.error('Error sending message:', error);
+                showToast('Gagal mengirim pesan', 'error');
+            }
+        }
+
+        function loadMessages(chatId) {
+            const container = document.getElementById('messagesContainer');
+            const spinner = document.getElementById('messagesSpinner');
+            
+            if (messageListener) messageListener();
+            
+            spinner.style.display = 'block';
+            
+            messageListener = db.collection('chats').doc(chatId)
+                .collection('messages')
+                .orderBy('timestamp', 'asc')
+                .onSnapshot((snapshot) => {
+                    spinner.style.display = 'none';
+                    container.innerHTML = '';
+                    
+                    snapshot.forEach(doc => {
+                        renderMessage(doc.id, doc.data());
+                    });
+                    
+                    container.scrollTop = container.scrollHeight;
+                }, (error) => {
+                    console.error('Error loading messages:', error);
+                    spinner.style.display = 'none';
+                });
+        }
+
+        function renderMessage(messageId, data) {
+            const container = document.getElementById('messagesContainer');
+            if (!container) return;
+            
+            const isSent = data.senderId === currentUser.uid;
+            const div = document.createElement('div');
+            div.className = `message ${isSent ? 'sent' : 'received'}`;
+            div.id = `msg-${messageId}`;
+            
+            let replyHTML = '';
+            if (data.replyTo) {
+                replyHTML = `
+                    <div class="reply-preview" onclick="scrollToMessage('${data.replyTo.messageId}')">
+                        <strong>${escapeHtml(data.replyTo.senderName)}</strong><br>
+                        ${escapeHtml(data.replyTo.text?.substring(0, 50))}
+                    </div>
+                `;
+            }
+            
+            const time = data.timestamp?.toDate?.() || new Date();
+            const timeStr = time.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+            
+            let contentHTML = '';
+            if (data.type === 'voice') {
+                const audioData = localStorage.getItem(data.voiceNoteId);
+                contentHTML = audioData ? `
+                    <div class="voice-note-player">
+                        🎙️ <audio controls src="${audioData}"></audio>
+                    </div>
+                ` : '<div>🎙️ Voice Note (tidak tersedia)</div>';
+            } else {
+                contentHTML = `
+                    <div class="message-text">
+                        ${escapeHtml(data.text)}
+                        ${data.edited ? '<span style="font-style:italic;opacity:0.7;font-size:11px;"> (diedit)</span>' : ''}
+                    </div>
+                `;
+            }
+            
+            div.innerHTML = `
+                ${replyHTML}
+                ${!isSent ? `<div class="message-sender">${escapeHtml(data.senderName)}</div>` : ''}
+                ${contentHTML}
+                <div class="message-time">${timeStr}</div>
+                <div class="message-reactions">${renderReactions(data.reactions || {})}</div>
+                <div class="message-actions">
+                    <button onclick="addReaction('${messageId}', '👍')">👍</button>
+                    <button onclick="addReaction('${messageId}', '❤️')">❤️</button>
+                    <button onclick="addReaction('${messageId}', '😂')">😂</button>
+                    <button onclick="addReaction('${messageId}', '🔥')">🔥</button>
+                    <button onclick="replyToMessage('${messageId}')">↩️</button>
+                    ${isSent ? `<button onclick="editMessage('${messageId}')">✏️</button>` : ''}
+                </div>
+            `;
+            
+            container.appendChild(div);
+        }
+
+        function renderReactions(reactions) {
+            return Object.entries(reactions).map(([emoji, users]) => {
+                const count = Array.isArray(users) ? users.length : 0;
+                return count > 0 ? `<span class="reaction-badge" onclick="addReaction('${messageId}', '${emoji}')">${emoji} ${count}</span>` : '';
+            }).join('');
+        }
+
+        async function addReaction(messageId, emoji) {
+            if (!currentChatPartner) return;
+            
+            try {
+                const ref = db.collection('chats').doc(currentChatPartner.chatId)
+                    .collection('messages').doc(messageId);
+                const doc = await ref.get();
+                const reactions = doc.data()?.reactions || {};
+                
+                if (!reactions[emoji]) reactions[emoji] = [];
+                
+                const index = reactions[emoji].indexOf(currentUser.uid);
+                if (index > -1) {
+                    reactions[emoji].splice(index, 1);
+                } else {
+                    reactions[emoji].push(currentUser.uid);
+                }
+                
+                if (reactions[emoji].length === 0) delete reactions[emoji];
+                
+                await ref.update({ reactions });
+            } catch (error) {
+                console.error('Error adding reaction:', error);
+            }
+        }
+
+        function replyToMessage(messageId) {
+            if (!currentChatPartner) return;
+            
+            db.collection('chats').doc(currentChatPartner.chatId)
+                .collection('messages').doc(messageId).get()
+                .then(doc => {
+                    if (doc.exists) {
+                        replyMessage = {
+                            id: messageId,
+                            text: doc.data().text,
+                            senderName: doc.data().senderName
+                        };
+                        
+                        const inputArea = document.querySelector('.message-input-area');
+                        removeReplyPreview();
+                        
+                        const preview = document.createElement('div');
+                        preview.className = 'reply-preview';
+                        preview.style.cssText = 'padding:8px 15px; background:var(--surface); border-left:4px solid var(--primary); margin:0 15px; font-size:12px;';
+                        preview.innerHTML = `
+                            <strong>Membalas ${escapeHtml(replyMessage.senderName)}</strong><br>
+                            <small>${escapeHtml(replyMessage.text?.substring(0, 50))}</small>
+                            <button onclick="cancelReply()" style="float:right; background:transparent; border:none; cursor:pointer; color:var(--danger);">✕</button>
+                        `;
+                        
+                        inputArea.parentNode.insertBefore(preview, inputArea);
+                        document.getElementById('messageInput').focus();
+                    }
+                });
+        }
+
+        function cancelReply() {
+            replyMessage = null;
+            removeReplyPreview();
+        }
+
+        function removeReplyPreview() {
+            const preview = document.querySelector('.reply-preview');
+            if (preview && preview.parentNode) {
+                // Only remove if it's the standalone preview, not inside a message
+                if (!preview.closest('.message')) {
+                    preview.remove();
+                }
+            }
+        }
+
+        async function editMessage(messageId) {
+            const newText = prompt('Edit pesan:', '');
+            if (!newText || !currentChatPartner) return;
+            
+            try {
+                await db.collection('chats').doc(currentChatPartner.chatId)
+                    .collection('messages').doc(messageId).update({
+                        text: newText,
+                        edited: true,
+                        editedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+            } catch (error) {
+                console.error('Error editing:', error);
+                showToast('Gagal mengedit pesan', 'error');
+            }
+        }
+
+        function scrollToMessage(messageId) {
+            const msgElement = document.getElementById(`msg-${messageId}`);
+            if (msgElement) {
+                msgElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                msgElement.style.backgroundColor = '#ffeb3b';
+                setTimeout(() => {
+                    msgElement.style.backgroundColor = '';
+                }, 2000);
+            }
+        }
+
+        // ============================================
+        // AI ASSISTANT
+        // ============================================
+        async function handleBotCommand(messageText) {
+            const query = messageText.replace('@bot', '').trim();
+            if (!query) return;
+            
+            showToast('🤖 AI sedang berpikir...', 'info');
+            
+            try {
+                const response = await fetch('https://ai.sumopod.com/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer sk-f-cGux8U_fsibMTbLa1utw'
+                    },
+                    body: JSON.stringify({
+                        model: 'gpt-4o-mini',
+                        messages: [{ role: 'user', content: query }],
+                        max_tokens: 150,
+                        temperature: 0.7
+                    })
+                });
+                
+                const data = await response.json();
+                const botReply = data.choices?.[0]?.message?.content || 'Maaf, saya tidak bisa menjawab.';
+                
+                await db.collection('chats').doc(currentChatPartner.chatId)
+                    .collection('messages').add({
+                        text: `🤖 ${botReply}`,
+                        senderId: 'bot',
+                        senderName: 'AI Assistant',
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                        isBot: true,
+                        type: 'text'
+                    });
+            } catch (error) {
+                console.error('Bot error:', error);
+                showToast('Gagal menghubungi AI', 'error');
+            }
+        }
+
+        // ============================================
+        // VOICE NOTE
+        // ============================================
+        async function toggleVoiceRecord() {
+            const btn = document.getElementById('recordBtn');
+            
+            if (!isRecording) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(stream);
+                    audioChunks = [];
+                    
+                    mediaRecorder.ondataavailable = (e) => audioChunks.push(e.data);
+                    mediaRecorder.onstop = async () => {
+                        const blob = new Blob(audioChunks, { type: 'audio/webm' });
+                        const reader = new FileReader();
+                        reader.readAsDataURL(blob);
+                        reader.onloadend = async () => {
+                            const voiceId = 'vn_' + Date.now();
+                            localStorage.setItem(voiceId, reader.result);
+                            
+                            await db.collection('chats').doc(currentChatPartner.chatId)
+                                .collection('messages').add({
+                                    text: '🎙️ Voice Note',
+                                    voiceNoteId: voiceId,
+                                    senderId: currentUser.uid,
+                                    senderName: userProfile.displayName,
+                                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                                    type: 'voice'
+                                });
+                        };
+                    };
+                    
+                    mediaRecorder.start();
+                    isRecording = true;
+                    btn.classList.add('recording');
+                    btn.innerHTML = '<i class="fas fa-stop"></i>';
+                    showToast('🔴 Merekam...', 'info');
+                } catch (error) {
+                    showToast('Gagal mengakses mikrofon', 'error');
+                }
+            } else {
+                mediaRecorder.stop();
+                isRecording = false;
+                btn.classList.remove('recording');
+                btn.innerHTML = '<i class="fas fa-microphone"></i>';
+                showToast('✅ Rekaman terkirim', 'success');
+            }
+        }
+
+        // ============================================
+        // STATUS / STORIES
+        // ============================================
+        function showUploadStatusModal() {
+            document.getElementById('uploadStatusModal').classList.add('show');
+        }
+
+        async function uploadStatus() {
+            const fileInput = document.getElementById('statusImageInput');
+            const caption = document.getElementById('statusCaptionInput').value;
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                showToast('Pilih gambar terlebih dahulu', 'error');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onloadend = async () => {
+                const statusData = {
+                    imageUrl: reader.result,
+                    caption: caption,
+                    userId: currentUser.uid,
+                    userName: userProfile.displayName,
+                    userPhoto: userProfile.photoURL,
+                    timestamp: Date.now(),
+                    expiresAt: Date.now() + (24 * 60 * 60 * 1000)
+                };
+                
+                const statuses = JSON.parse(localStorage.getItem('statuses') || '[]');
+                statuses.unshift(statusData);
+                localStorage.setItem('statuses', JSON.stringify(statuses));
+                
+                closeModal('uploadStatusModal');
+                fileInput.value = '';
+                document.getElementById('statusCaptionInput').value = '';
+                showToast('Status berhasil diupload!', 'success');
+                loadStatuses();
+            };
+        }
+
+        function loadStatuses() {
+            const statuses = JSON.parse(localStorage.getItem('statuses') || '[]');
+            const now = Date.now();
+            const activeStatuses = statuses.filter(s => s.expiresAt > now);
+            
+            if (activeStatuses.length !== statuses.length) {
+                localStorage.setItem('statuses', JSON.stringify(activeStatuses));
+            }
+            
+            const list = document.getElementById('statusList');
+            
+            if (activeStatuses.length === 0) {
+                list.innerHTML = '<div style="text-align:center; padding:20px; color: var(--text-secondary);">Belum ada status terbaru</div>';
+                return;
+            }
+            
+            list.innerHTML = activeStatuses.map((status, i) => `
+                <div class="status-item" onclick="viewStatus(${i})">
+                    <div class="status-circle">
+                        <div class="status-circle-inner">
+                            <img src="${status.imageUrl}" alt="" onerror="this.style.display='none'">
+                        </div>
+                    </div>
+                    <div>
+                        <div style="font-weight:600;">${escapeHtml(status.userName)}</div>
+                        <div style="font-size:12px; color: var(--text-secondary);">${timeAgo(status.timestamp)}</div>
+                    </div>
+                </div>
+            `).join('');
+            
+            // Update my status preview
+            if (activeStatuses.length > 0) {
+                const myStatus = activeStatuses.find(s => s.userId === currentUser.uid);
+                if (myStatus) {
+                    document.getElementById('myStatusPreview').innerHTML = `<img src="${myStatus.imageUrl}" style="width:100%;height:100%;object-fit:cover;">`;
+                }
+            }
+        }
+
+        function viewStatus(index) {
+            const statuses = JSON.parse(localStorage.getItem('statuses') || '[]');
+            const activeStatuses = statuses.filter(s => s.expiresAt > Date.now());
+            
+            if (index < activeStatuses.length) {
+                const status = activeStatuses[index];
+                document.getElementById('viewStatusImage').src = status.imageUrl;
+                document.getElementById('viewStatusCaption').textContent = status.caption || '';
+                document.getElementById('viewStatusModal').classList.add('show');
+            }
+        }
+
+        // ============================================
+        // CONTACT PROFILE
+        // ============================================
+        async function viewContactProfile() {
+            if (!currentChatPartner) return;
+            
+            const chat = allChats.find(c => c.id === currentChatPartner.chatId);
+            const partnerProfile = chat?.participantProfiles?.[currentChatPartner.partnerId] || {};
+            
+            const userDoc = await db.collection('users').doc(currentChatPartner.partnerId).get();
+            const userData = userDoc.exists ? userDoc.data() : {};
+            
+            document.getElementById('profileModalAvatar').innerHTML = partnerProfile.photoURL ?
+                `<img src="${partnerProfile.photoURL}" style="width:100%;height:100%;object-fit:cover;">` :
+                (partnerProfile.displayName || 'U').charAt(0).toUpperCase();
+            document.getElementById('profileModalName').textContent = userData.displayName || partnerProfile.displayName;
+            document.getElementById('profileModalUsername').textContent = '@' + (userData.username || partnerProfile.username);
+            document.getElementById('profileModalBio').textContent = userData.bio || 'Tidak ada bio';
+            
+            document.getElementById('contactProfileModal').classList.add('show');
+        }
+
+        async function deleteChat() {
+            if (!currentChatPartner) return;
+            
+            if (confirm('Yakin ingin menghapus chat ini? Semua pesan akan hilang.')) {
+                try {
+                    // Delete all messages
+                    const messagesSnapshot = await db.collection('chats').doc(currentChatPartner.chatId)
+                        .collection('messages').get();
+                    
+                    const batch = db.batch();
+                    messagesSnapshot.forEach(doc => batch.delete(doc.ref));
+                    batch.delete(db.collection('chats').doc(currentChatPartner.chatId));
+                    await batch.commit();
+                    
+                    closeModal('contactProfileModal');
+                    closeChatRoom();
+                    showToast('Chat berhasil dihapus', 'success');
+                    loadChats();
+                } catch (error) {
+                    console.error('Error deleting chat:', error);
+                    showToast('Gagal menghapus chat', 'error');
+                }
+            }
+        }
+
+        // ============================================
+        // SETTINGS
+        // ============================================
+        function openSettings() {
+            updateSettingsUI();
+            document.getElementById('settingsPage').classList.add('show');
+            
+            const darkToggle = document.getElementById('darkModeToggle');
+            if (document.body.classList.contains('dark-mode')) {
+                darkToggle.classList.add('active');
+            } else {
+                darkToggle.classList.remove('active');
+            }
+        }
+
+        function closeSettings() {
+            document.getElementById('settingsPage').classList.remove('show');
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('darkMode', isDark);
+            
+            const toggle = document.getElementById('darkModeToggle');
+            if (isDark) {
+                toggle.classList.add('active');
+            } else {
+                toggle.classList.remove('active');
+            }
+            
+            showToast(isDark ? '🌙 Dark Mode aktif' : '☀️ Light Mode aktif', 'success');
+        }
+
+        function toggleNotifications() {
+            const toggle = document.getElementById('notifToggle');
+            toggle.classList.toggle('active');
+            
+            if (toggle.classList.contains('active')) {
+                requestNotificationPermission();
+                showToast('Notifikasi diaktifkan', 'success');
+            } else {
+                showToast('Notifikasi dinonaktifkan', 'info');
+            }
+        }
+
+        function editProfile() {
+            if (!userProfile) return;
+            
+            document.getElementById('editDisplayName').value = userProfile.displayName || '';
+            document.getElementById('editBio').value = userProfile.bio || '';
+            
+            if (userProfile.photoURL) {
+                document.getElementById('editPhotoPreview').src = userProfile.photoURL;
+                document.getElementById('editPhotoPreview').style.display = 'block';
+                document.getElementById('editUploadPlaceholder').style.display = 'none';
+            }
+            
+            document.getElementById('editProfileModal').classList.add('show');
+        }
+
+        async function saveEditedProfile() {
+            const displayName = document.getElementById('editDisplayName').value.trim();
+            const bio = document.getElementById('editBio').value.trim();
+            const photoInput = document.getElementById('editPhotoInput');
+            
+            if (!displayName) {
+                showToast('Nama panggilan wajib diisi!', 'error');
+                return;
+            }
+            
+            try {
+                let photoURL = userProfile.photoURL;
+                if (photoInput.files[0]) {
+                    const reader = new FileReader();
+                    photoURL = await new Promise((resolve) => {
+                        reader.onload = (e) => resolve(e.target.result);
+                        reader.readAsDataURL(photoInput.files[0]);
+                    });
+                }
+                
+                userProfile.displayName = displayName;
+                userProfile.bio = bio;
+                userProfile.photoURL = photoURL;
+                
+                await db.collection('users').doc(currentUser.uid).update({
+                    displayName, bio, photoURL
+                });
+                
+                // Update participant profiles in all chats
+                const chatsSnapshot = await db.collection('chats')
+                    .where('participants', 'array-contains', currentUser.uid)
+                    .get();
+                
+                const batch = db.batch();
+                chatsSnapshot.forEach(doc => {
+                    batch.update(doc.ref, {
+                        [`participantProfiles.${currentUser.uid}.displayName`]: displayName,
+                        [`participantProfiles.${currentUser.uid}.photoURL`]: photoURL
+                    });
+                });
+                await batch.commit();
+                
+                closeModal('editProfileModal');
+                updateSettingsUI();
+                showToast('Profil berhasil diperbarui!', 'success');
+                loadChats();
+            } catch (error) {
+                console.error('Error updating profile:', error);
+                showToast('Gagal memperbarui profil', 'error');
+            }
+        }
+
+        async function logout() {
+            if (confirm('Yakin ingin keluar?')) {
+                if (currentUser) {
+                    await db.collection('users').doc(currentUser.uid).update({ online: false });
+                }
+                await auth.signOut();
+                location.reload();
+            }
+        }
+
+        // ============================================
+        // NAVIGATION
+        // ============================================
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
+            
+            document.getElementById('headerTitle').textContent = 
+                tabId === 'chatsTab' ? 'RaflyChat' :
+                tabId === 'statusTab' ? 'Status' : 'Panggilan';
+            
+            if (tabId === 'statusTab') loadStatuses();
+        }
+
+        // ============================================
+        // NOTIFICATIONS
+        // ============================================
+        function requestNotificationPermission() {
+            if (Notification.permission === 'default') {
+                Notification.requestPermission();
+            }
+        }
+
+        function sendNotification(title, body) {
+            if (Notification.permission === 'granted') {
+                new Notification(title, { body, icon: userProfile?.photoURL || '' });
+                playNotificationSound();
+            }
+        }
+
+        function playNotificationSound() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.frequency.value = 800;
+                gain.gain.value = 0.1;
+                osc.start();
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+                osc.stop(ctx.currentTime + 0.3);
+            } catch(e) {}
+        }
+
+        // ============================================
+        // UTILITIES
+        // ============================================
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function formatTime(date) {
+            const now = new Date();
+            const diff = now - date;
+            
+            if (diff < 86400000 && date.getDate() === now.getDate()) {
+                return date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+            } else if (diff < 172800000) {
+                return 'Kemarin';
+            } else {
+                return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+            }
+        }
+
+        function timeAgo(timestamp) {
+            const diff = Date.now() - timestamp;
+            const minutes = Math.floor(diff / 60000);
+            const hours = Math.floor(diff / 3600000);
+            
+            if (minutes < 1) return 'Baru saja';
+            if (minutes < 60) return `${minutes} menit lalu`;
+            if (hours < 24) return `${hours} jam lalu`;
+            return `${Math.floor(hours / 24)} hari lalu`;
+        }
+
+        function showAddContactModal() {
+            document.getElementById('addContactModal').classList.add('show');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('show');
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type}`;
+            toast.style.display = 'block';
+            
+            clearTimeout(toast._timeout);
+            toast._timeout = setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+
+        // Close modals on overlay click
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal-overlay')) {
+                e.target.classList.remove('show');
+            }
+        });
+
+        // ============================================
+        // AUTH STATE OBSERVER
+        // ============================================
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                currentUser = user;
+                const userDoc = await db.collection('users').doc(user.uid).get();
+                
+                if (userDoc.exists) {
+                    userProfile = userDoc.data();
+                    await initializeApp();
+                } else {
+                    document.getElementById('loginScreen').style.display = 'flex';
+                }
+            } else {
+                currentUser = null;
+                userProfile = null;
+                document.getElementById('loginScreen').style.display = 'flex';
+                document.getElementById('appScreen').style.display = 'none';
+                document.getElementById('setupScreen').style.display = 'none';
+            }
+        });
+
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+        console.log('🚀 RaflyChat initialized!');
+        console.log('📱 WhatsApp Clone with Username & Access Code System');
+        console.log('💡 Features: Chat, Status, Voice Notes, AI Assistant, Dark Mode');
+    </script>
+</body>
+</html>
