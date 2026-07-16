@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Web Ahay - AI Chatbot with vesta.ai">
+    <title>Web Ahay | vesta.ai</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="dark-theme">
+    <div class="auth-container">
+        <div class="auth-wrapper">
+            <!-- Login Form -->
+            <div id="loginSection" class="auth-section">
+                <div class="auth-header">
+                    <img src="vestlog.jpg" alt="vesta.ai Logo" class="auth-logo">
+                    <h1 class="auth-title">Welcome to Web Ahay</h1>
+                    <p class="auth-subtitle">Powered by vesta.ai Intelligence</p>
+                </div>
+                <form id="loginForm" class="auth-form">
+                    <div class="input-group">
+                        <i class="fas fa-envelope input-icon"></i>
+                        <input type="email" id="loginEmail" class="auth-input" placeholder="Email address" required>
+                    </div>
+                    <div class="input-group">
+                        <i class="fas fa-lock input-icon"></i>
+                        <input type="password" id="loginPassword" class="auth-input" placeholder="Password" required>
+                    </div>
+                    <button type="submit" class="auth-btn primary-btn">
+                        <i class="fas fa-sign-in-alt"></i> Sign In
+                    </button>
+                </form>
+                <div class="auth-divider"><span>or</span></div>
+                <button id="showRegisterBtn" class="auth-btn secondary-btn">
+                    <i class="fas fa-user-plus"></i> Create Account
+                </button>
+            </div>
+
+            <!-- Register Form -->
+            <div id="registerSection" class="auth-section" style="display: none;">
+                <div class="auth-header">
+                    <img src="vestlog.jpg" alt="vesta.ai Logo" class="auth-logo">
+                    <h1 class="auth-title">Create Account</h1>
+                    <p class="auth-subtitle">Join Web Ahay Community</p>
+                </div>
+                <form id="registerForm" class="auth-form">
+                    <div class="input-group">
+                        <i class="fas fa-envelope input-icon"></i>
+                        <input type="email" id="registerEmail" class="auth-input" placeholder="Email address" required>
+                    </div>
+                    <div class="input-group">
+                        <i class="fas fa-lock input-icon"></i>
+                        <input type="password" id="registerPassword" class="auth-input" placeholder="Password (min 6 characters)" required>
+                    </div>
+                    <button type="submit" class="auth-btn primary-btn">
+                        <i class="fas fa-user-check"></i> Register
+                    </button>
+                </form>
+                <div class="auth-divider"><span>or</span></div>
+                <button id="showLoginBtn" class="auth-btn secondary-btn">
+                    <i class="fas fa-arrow-left"></i> Back to Login
+                </button>
+            </div>
+
+            <!-- Username Creator -->
+            <div id="usernameSection" class="auth-section" style="display: none;">
+                <div class="auth-header">
+                    <img src="vestlog.jpg" alt="vesta.ai Logo" class="auth-logo">
+                    <h1 class="auth-title">Buat Username Unik</h1>
+                    <p class="auth-subtitle">Silakan buat username unik kamu untuk memulai!</p>
+                </div>
+                <form id="usernameForm" class="auth-form">
+                    <div class="input-group">
+                        <i class="fas fa-at input-icon"></i>
+                        <input type="text" id="usernameInput" class="auth-input" placeholder="Masukkan username" required minlength="3">
+                    </div>
+                    <p class="form-hint">Username minimal 3 karakter, hanya huruf kecil dan angka</p>
+                    <button type="submit" class="auth-btn primary-btn">
+                        <i class="fas fa-check-circle"></i> Buat Username
+                    </button>
+                </form>
+            </div>
+
+            <!-- Dashboard -->
+            <div id="dashboardSection" class="auth-section" style="display: none;">
+                <div class="dashboard-header">
+                    <img src="vestlog.jpg" alt="vesta.ai Logo" class="dashboard-logo pulse-animation">
+                    <div class="welcome-message">
+                        <h2>Halo! Selamat datang di vesta.ai.</h2>
+                        <p>Ada yang bisa dibantu hari ini, <span id="dashboardUsername"></span>?</p>
+                    </div>
+                </div>
+                <div class="dashboard-content">
+                    <div class="chat-link-card">
+                        <div class="card-icon">
+                            <i class="fas fa-comments"></i>
+                        </div>
+                        <div class="card-info">
+                            <h3>Private Chat Room</h3>
+                            <p class="chat-link-text" id="privateChatLink"></p>
+                        </div>
+                        <a href="#" id="goToChatBtn" class="card-action-btn">
+                            <i class="fas fa-arrow-right"></i> Buka Chat
+                        </a>
+                    </div>
+                    <button id="logoutBtn" class="auth-btn danger-btn">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    
+    <!-- Custom Scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+</body>
+</html>
