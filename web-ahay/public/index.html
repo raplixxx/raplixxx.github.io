@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="Web Ahay - AI Chatbot Cerdas dengan vesta.ai Intelligence. Chat dengan AI, cari informasi web, dan analisis gambar.">
+    <meta name="theme-color" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Web Ahay">
+    <link rel="icon" type="image/x-icon" href="vestlog.jpg">
+    <link rel="apple-touch-icon" href="vestlog.jpg">
+    <title>Web Ahay | vesta.ai Intelligence</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body class="dark-theme">
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="loading-screen">
+        <div class="loading-content">
+            <img src="vestlog.jpg" alt="vesta.ai Logo" class="loading-logo pulse-glow" width="100" height="100">
+            <div class="loading-spinner"></div>
+            <p class="loading-text">Memuat Web Ahay...</p>
+        </div>
+    </div>
+
+    <!-- Auth Modal - Google Login -->
+    <div id="authModal" class="modal-overlay" style="display: none;">
+        <div class="modal-container">
+            <div class="modal-header">
+                <img src="vestlog.jpg" alt="vesta.ai Logo" class="modal-logo" width="80" height="80">
+                <h2>Selamat Datang di Web Ahay</h2>
+                <p>Login untuk memulai chat dengan AI cerdas</p>
+            </div>
+            <div class="modal-body">
+                <button id="googleLoginBtn" class="google-btn-large" type="button">
+                    <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
+                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
+                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                    </svg>
+                    <span>Lanjutkan dengan Google</span>
+                </button>
+                <div class="modal-divider"><span>Fitur Unggulan</span></div>
+                <div class="features-list">
+                    <div class="feature-item"><i class="fas fa-robot"></i><span>AI GPT-4o Mini</span></div>
+                    <div class="feature-item"><i class="fas fa-globe"></i><span>Web Search</span></div>
+                    <div class="feature-item"><i class="fas fa-image"></i><span>Analisis Gambar</span></div>
+                    <div class="feature-item"><i class="fas fa-brain"></i><span>Memory 20 Pesan</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Username Creation Modal -->
+    <div id="usernameModal" class="modal-overlay" style="display: none;">
+        <div class="modal-container">
+            <div class="modal-header">
+                <img src="vestlog.jpg" alt="vesta.ai Logo" class="modal-logo" width="80" height="80">
+                <h2>Buat Username Unik</h2>
+                <p>Username ini akan menjadi identitas chat kamu</p>
+            </div>
+            <div class="modal-body">
+                <form id="usernameForm" autocomplete="off">
+                    <div class="input-modern-group">
+                        <input type="text" id="usernameInput" class="input-modern" placeholder="Masukkan username keren kamu" maxlength="20" required autofocus>
+                        <label class="input-label">Username (3-20 karakter, huruf kecil & angka)</label>
+                    </div>
+                    <div class="username-preview-box" id="usernamePreview" style="display: none;">
+                        <p>🔗 Link chat kamu nanti:</p>
+                        <code id="previewLink"></code>
+                    </div>
+                    <button type="submit" class="btn-primary-gradient">
+                        <i class="fas fa-magic"></i> Buat Username & Mulai Chat
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Chat Interface -->
+    <div id="mainChat" class="main-chat-container" style="display: none;">
+        <!-- Header -->
+        <header class="chat-header-modern">
+            <div class="header-left">
+                <button id="menuToggleBtn" class="icon-btn-round" title="Menu Riwayat Chat" aria-label="Buka menu riwayat chat">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="header-brand">
+                    <img src="vestlog.jpg" alt="vesta.ai" class="header-logo-small" width="40" height="40">
+                    <div>
+                        <h3 class="header-title">Web Ahay</h3>
+                        <span class="header-status">Online</span>
+                    </div>
+                </div>
+            </div>
+            <div class="header-right">
+                <button id="newSessionBtn" class="icon-btn-round" title="Chat Baru" aria-label="Mulai chat baru">
+                    <i class="fas fa-plus"></i>
+                </button>
+                <button id="shareBtn" class="icon-btn-round" title="Bagikan Chat" aria-label="Bagikan chat ini">
+                    <i class="fas fa-share-alt"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Sidebar -->
+        <aside id="sidebar" class="sidebar-modern">
+            <div class="sidebar-header">
+                <h3>📝 Riwayat Chat</h3>
+                <button id="closeSidebarBtn" class="icon-btn-round" aria-label="Tutup sidebar">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="sidebar-search">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchChats" placeholder="Cari chat..." aria-label="Cari riwayat chat">
+            </div>
+            <button id="newChatSidebarBtn" class="btn-new-chat">
+                <i class="fas fa-plus-circle"></i> Chat Baru
+            </button>
+            <div id="sessionsList" class="sessions-list"></div>
+            <div class="sidebar-footer">
+                <div class="user-info-mini">
+                    <div id="userAvatar" class="user-avatar-mini" aria-label="Avatar pengguna"></div>
+                    <div>
+                        <p id="sidebarUsername"></p>
+                        <span id="sidebarEmail"></span>
+                    </div>
+                </div>
+                <button id="logoutSidebarBtn" class="btn-logout" title="Keluar">
+                    <i class="fas fa-sign-out-alt"></i> Keluar
+                </button>
+            </div>
+        </aside>
+
+        <!-- Chat Area -->
+        <main class="chat-area">
+            <div class="messages-container" id="messagesContainer">
+                <div class="welcome-screen" id="welcomeScreen">
+                    <div class="welcome-content">
+                        <img src="vestlog.jpg" alt="vesta.ai" class="welcome-logo" width="120" height="120">
+                        <h1>Web Ahay</h1>
+                        <p class="welcome-tagline">AI Assistant cerdas dengan vesta.ai Intelligence</p>
+                        <div class="quick-actions">
+                            <button class="quick-action-btn" onclick="sendQuickMessage('Halo! Apa itu vesta.ai dan apa saja kemampuanmu?')" type="button">
+                                <i class="fas fa-question-circle"></i>
+                                <span>Apa itu vesta.ai?</span>
+                            </button>
+                            <button class="quick-action-btn" onclick="sendQuickMessage('Cari berita terbaru dan trending hari ini di Indonesia')" type="button">
+                                <i class="fas fa-newspaper"></i>
+                                <span>Berita terbaru hari ini</span>
+                            </button>
+                            <button class="quick-action-btn" onclick="sendQuickMessage('Bantu saya menganalisis sebuah gambar. Apa yang bisa kamu lakukan?')" type="button">
+                                <i class="fas fa-image"></i>
+                                <span>Analisis gambar</span>
+                            </button>
+                            <button class="quick-action-btn" onclick="sendQuickMessage('Jelaskan semua kemampuan dan fitur yang kamu miliki secara detail')" type="button">
+                                <i class="fas fa-star"></i>
+                                <span>Kemampuan AI</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- AI Status Indicator -->
+            <div id="aiStatus" class="ai-status" style="display: none;" role="status" aria-live="polite">
+                <div class="status-content">
+                    <div class="status-dot"></div>
+                    <span id="statusText">vesta.ai Thinking...</span>
+                </div>
+            </div>
+        </main>
+
+        <!-- Input Area -->
+        <footer class="input-area-modern">
+            <div class="input-container">
+                <!-- Image Preview -->
+                <div id="imagePreviewContainer" class="image-preview-container" style="display: none;">
+                    <div class="image-preview-wrapper">
+                        <img id="imagePreview" src="" alt="Preview gambar yang akan dikirim" width="100" height="100">
+                        <button id="removeImageBtn" class="btn-remove-image" type="button" aria-label="Hapus gambar">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <input type="text" id="imagePrompt" class="image-prompt-input" placeholder="Tambahkan prompt untuk gambar (opsional)...">
+                </div>
+                
+                <!-- Message Input -->
+                <div class="message-input-wrapper">
+                    <button id="attachImageBtn" class="btn-attach" type="button" title="Upload Gambar" aria-label="Upload gambar">
+                        <i class="fas fa-image"></i>
+                    </button>
+                    <input type="file" id="imageInput" accept="image/jpeg,image/png,image/gif,image/webp" style="display: none;" aria-label="Pilih file gambar">
+                    <textarea id="messageInput" class="message-textarea" placeholder="Ketik pesan Anda di sini..." rows="1" aria-label="Input pesan"></textarea>
+                    <button id="sendMessageBtn" class="btn-send" type="button" title="Kirim Pesan" aria-label="Kirim pesan">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Share Modal -->
+    <div id="shareModal" class="modal-overlay" style="display: none;">
+        <div class="modal-container">
+            <button class="modal-close-btn" onclick="document.getElementById('shareModal').style.display='none'" aria-label="Tutup modal share">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="modal-header">
+                <h2>🔗 Bagikan Chat</h2>
+            </div>
+            <div class="modal-body">
+                <p style="color: var(--text-secondary); margin-bottom: 8px;">Bagikan chat ini ke publik. Siapa pun dengan link dapat melihatnya.</p>
+                <div class="share-link-container">
+                    <input type="text" id="shareLinkInput" readonly aria-label="Link share">
+                    <button id="copyShareLinkBtn" class="btn-copy" type="button">
+                        <i class="fas fa-copy"></i> Salin
+                    </button>
+                </div>
+                <p class="share-note">
+                    <i class="fas fa-info-circle"></i>
+                    Chat yang dibagikan bersifat <strong>read-only</strong> dan dapat diakses siapa saja dengan link.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications Container -->
+    <div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    
+    <!-- Application Scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/chat.js"></script>
+</body>
+</html>
