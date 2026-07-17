@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="Shared Chat - Web Ahay by vesta.ai">
+    <meta name="theme-color" content="#667eea">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="icon" type="image/x-icon" href="vestlog.jpg">
+    <title>Shared Chat | Web Ahay</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body class="dark-theme">
+    <!-- Header -->
+    <header class="chat-header-modern">
+        <div class="header-left">
+            <div class="header-brand">
+                <a href="/" title="Kembali ke Web Ahay">
+                    <img src="vestlog.jpg" alt="vesta.ai" class="header-logo-small" width="40" height="40">
+                </a>
+                <div>
+                    <h3 class="header-title">Shared Chat - Web Ahay</h3>
+                    <span style="font-size: 0.8rem; color: var(--accent-blue); display: flex; align-items: center; gap: 4px;">
+                        <i class="fas fa-eye"></i> Read Only
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="header-right">
+            <a href="/" class="icon-btn-round" title="Buka Web Ahay" aria-label="Buka Web Ahay">
+                <i class="fas fa-external-link-alt"></i>
+            </a>
+        </div>
+    </header>
+
+    <!-- Chat Area -->
+    <main class="chat-area">
+        <div class="messages-container" id="sharedMessagesContainer">
+            <div class="loading-state">
+                <div class="loading-spinner"></div>
+                <p>Memuat chat yang dibagikan...</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    
+    <!-- Application Scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/share.js"></script>
+</body>
+</html>
