@@ -1,0 +1,157 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Firebase
+.firebase/
+firebase-debug.log
+firebase-debug.*.log
+ui-debug.log
+firestore-debug.log
+database-debug.log
+storage-debug.log
+.firebaserc
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*
+
+# Build output
+dist/
+build/
+out/
+.next/
+nuxt/
+.deploy/
+.functions/
+
+# Cache
+.cache/
+*.tsbuildinfo
+.sass-cache/
+*.css.map
+
+# Testing
+coverage/
+.nyc_output/
+cypress/videos/
+cypress/screenshots/
+
+# IDE & Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+*.sublime-workspace
+*.sublime-project
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+Thumbs.db
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+*.tmp.*
+
+# Service account keys (PENTING! Jangan commit)
+*-service-account.json
+*service-account*.json
+firebase-service-account.json
+google-services.json
+GoogleService-Info.plist
+serviceAccountKey.json
+
+# Security & Secrets
+*.pem
+*.key
+*.crt
+*.cert
+secret*
+credentials*
+api-keys*
+privatekey*
+*secret*
+
+# Backup files
+*.bak
+*.backup
+*.old
+*.orig
+*.prev
+
+# Compression
+*.zip
+*.tar.gz
+*.rar
+*.7z
+*.gz
+*.bz2
+
+# Documentation build
+docs/_build/
+docs/.doctrees/
+site/
+
+# Jekyll
+_site/
+.jekyll-cache/
+.jekyll-metadata
+
+# Sass
+.sass-cache/
+
+# TypeScript
+*.tsbuildinfo
+
+# Cloudflare
+wrangler.toml
+.wrangler/
+
+# Miscellaneous
+*.orig
+*.rej
+*.patch
+*~
+\#*\#
+.\#*
+
+# Optional: Keep specific files
+!.gitkeep
+!.env.example
