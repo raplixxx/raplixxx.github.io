@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Web Ahay - vesta.ai</title>
+  <link rel="icon" type="image/png" href="logo.png">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Loading Screen Uiverse.io -->
+  <div id="loadingScreen">
+    <img src="logo.png" alt="vesta.ai" class="loading-logo">
+    <div class="loading-spinner"></div>
+    <p class="loading-text">Mempersiapkan Web Ahay...</p>
+  </div>
+
+  <!-- Auth Modal Uiverse.io glassmorphism -->
+  <div id="authModal" class="modal-overlay">
+    <div class="modal-container">
+      <div class="modal-header">
+        <img src="logo.png" alt="vesta.ai">
+        <h2>Selamat datang di Web Ahay</h2>
+        <p>Asisten AI cerdas untuk semua kebutuhanmu</p>
+      </div>
+      <button id="googleLoginBtn" class="google-btn">
+        <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        <span id="googleBtnText">Lanjutkan dengan Google</span>
+        <span id="googleBtnSpinner" class="spinner" style="display:none;"></span>
+      </button>
+      <div class="features-grid">
+        <div class="feature-item"><span class="feature-icon">🧠</span> AI Pintar</div>
+        <div class="feature-item"><span class="feature-icon">🔍</span> Web Search</div>
+        <div class="feature-item"><span class="feature-icon">🖼️</span> Analisis Gambar</div>
+        <div class="feature-item"><span class="feature-icon">📄</span> Analisis Dokumen</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Username Modal -->
+  <div id="usernameModal" class="modal-overlay">
+    <div class="modal-container">
+      <div class="modal-header">
+        <img src="logo.png" alt="vesta.ai">
+        <h2>Pilih Username</h2>
+        <p>Buat username unik untuk akunmu</p>
+      </div>
+      <form id="usernameForm" class="username-form">
+        <div class="input-group">
+          <input type="text" id="usernameInput" placeholder=" " maxlength="20" required>
+          <label for="usernameInput">Username</label>
+        </div>
+        <div id="usernameError" class="username-error"></div>
+        <button type="submit" id="usernameSubmitBtn" class="username-btn">Lanjutkan</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Main Chat -->
+  <div id="mainChat" style="display:none;">
+    <div class="chat-layout">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <h3>Riwayat</h3>
+          <button class="close-sidebar" id="closeSidebarBtn">&times;</button>
+        </div>
+        <div class="sidebar-search">
+          <input type="text" id="searchSessions" placeholder="Cari percakapan...">
+        </div>
+        <div class="sidebar-sessions" id="sessionList"></div>
+        <div class="sidebar-footer">
+          <div id="sidebarUserInfo" class="user-info"></div>
+          <button id="logoutBtn" class="logout-btn">Keluar</button>
+        </div>
+      </aside>
+
+      <!-- Main Chat Area -->
+      <main class="chat-main">
+        <header class="chat-header">
+          <div class="header-left">
+            <button class="icon-btn toggle-sidebar" id="toggleSidebarBtn">☰</button>
+            <img src="logo.png" alt="vesta.ai">
+            <div class="header-title">
+              <h1>Web Ahay</h1>
+              <div class="status-badge"><span class="status-dot"></span> Online</div>
+            </div>
+          </div>
+          <div class="header-actions">
+            <button class="icon-btn" id="newChatBtn" title="Chat Baru">＋</button>
+            <button class="icon-btn" id="shareBtn" title="Bagikan">↗</button>
+            <button class="icon-btn" id="exportBtn" title="Ekspor">⬇</button>
+            <button class="icon-btn" id="ttsBtn" title="Bacakan">🔊</button>
+            <button class="icon-btn" id="regenerateBtn" title="Ulangi respons">🔄</button>
+            <button class="icon-btn" id="stopBtn" title="Berhenti" style="display:none;">⏹️</button>
+          </div>
+        </header>
+
+        <div class="chat-messages-container">
+          <div id="welcomeScreen" class="welcome-screen">
+            <img src="logo.png" alt="vesta.ai" class="welcome-logo">
+            <h2 class="welcome-title">Web Ahay siap membantu</h2>
+            <p class="welcome-subtitle">Tanyakan apa saja, unggah gambar atau dokumen untuk dianalisis.</p>
+            <div id="quickActions" class="quick-actions">
+              <button class="quick-action" id="actionExplain"><span class="qa-icon">💡</span> Jelaskan AI</button>
+              <button class="quick-action" id="actionSearch"><span class="qa-icon">🔍</span> Berita Terkini</button>
+              <button class="quick-action" id="actionImage"><span class="qa-icon">🖼️</span> Analisis Gambar</button>
+              <button class="quick-action" id="actionDoc"><span class="qa-icon">📄</span> Analisis Dokumen</button>
+            </div>
+          </div>
+          <div id="chatMessages"></div>
+          <div id="aiStatus" class="ai-status" style="display:none;">
+            <span class="ai-status-dot"></span><span class="ai-status-dot"></span><span class="ai-status-dot"></span>
+            <span class="ai-status-text">AI sedang berpikir...</span>
+          </div>
+        </div>
+
+        <div class="chat-input-area">
+          <div id="imagePreviewContainer" class="attachment-preview-container">
+            <img id="imagePreview" src="" alt="preview">
+            <button id="removeImageBtn" class="remove-attachment">×</button>
+          </div>
+          <div class="input-row">
+            <input type="file" id="imageInput" accept="image/*" hidden>
+            <input type="file" id="docInput" accept=".txt,.md,.json,.csv,.html,.xml,.log" hidden>
+            <button class="attach-btn" id="attachBtn" title="Lampirkan Gambar">🖼️</button>
+            <button class="attach-btn" id="docAttachBtn" title="Lampirkan Dokumen">📎</button>
+            <button class="emoji-btn" id="emojiBtn" title="Emoji">😊</button>
+            <div id="emojiPicker" class="emoji-picker"></div>
+            <textarea id="messageInput" class="message-input" rows="1" placeholder="Ketik pesan..."></textarea>
+            <button class="send-btn" id="sendBtn" title="Kirim">➤</button>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Share Modal -->
+  <div id="shareModal" class="modal-overlay share-modal">
+    <div class="modal-container">
+      <div class="modal-header">
+        <img src="logo.png" alt="vesta.ai">
+        <h2>Bagikan Percakapan</h2>
+      </div>
+      <p>Bagikan tautan ini agar orang lain dapat melihat percakapan (read-only).</p>
+      <div class="share-link-container">
+        <input type="text" id="shareUrl" readonly>
+        <button id="copyShareBtn" class="copy-btn">Salin</button>
+      </div>
+      <button id="closeShareModal" class="username-btn" style="margin-top:8px;">Tutup</button>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toastContainer"></div>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+  <!-- App Scripts -->
+  <script src="js/config.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/chat.js"></script>
+</body>
+</html>
