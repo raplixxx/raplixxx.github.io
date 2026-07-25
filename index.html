@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Web Ahay — Vesta AI</title>
+  <meta name="description" content="Vesta AI, asisten chatbot AI premium dari Web Ahay. Ngobrol, analisis foto & dokumen, dan telusuri web secara instan.">
+
+  <link rel="icon" id="favicon" href="https://raflymusyaf.web.id/logoweb.png" type="image/png">
+  <meta property="og:title" content="Web Ahay — Vesta AI">
+  <meta property="og:description" content="Asisten chatbot AI premium berbahasa Indonesia.">
+  <meta property="og:image" content="https://raflymusyaf.web.id/logoweb.png">
+  <meta property="og:type" content="website">
+
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- ============================ LOADING SCREEN ============================ -->
+  <div id="loading-screen">
+    <img class="loading-logo" data-brand-logo src="" alt="Vesta AI">
+    <div class="loading-text">Memuat Vesta AI…</div>
+  </div>
+
+  <!-- ============================== LOGIN PAGE =============================== -->
+  <div id="login-page" class="hidden">
+    <div class="login-card glass-card glow-border">
+      <img class="login-logo" data-brand-logo src="" alt="Vesta AI">
+      <h1 class="login-title">Vesta AI</h1>
+      <p class="login-subtitle">Asisten AI pintar berbahasa Indonesia. Masuk sekali dengan Google, dan sesi Anda akan selalu diingat.</p>
+      <button id="btn-google-login" class="btn-google">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="">
+        Masuk dengan Google
+      </button>
+    </div>
+  </div>
+
+  <!-- =============================== APP SHELL ================================ -->
+  <div id="app-shell" class="hidden">
+
+    <div id="sidebar-overlay"></div>
+
+    <aside id="sidebar" class="glass-card">
+      <div class="sidebar-header">
+        <img data-brand-logo src="" alt="Vesta AI">
+        <span data-brand-name>Vesta AI</span>
+      </div>
+
+      <button id="btn-new-chat" class="btn-new-chat">
+        <span>+</span> Percakapan Baru
+      </button>
+
+      <div id="session-list"></div>
+
+      <div class="sidebar-profile">
+        <img id="profile-avatar" src="" alt="Foto profil">
+        <div class="profile-info">
+          <div class="profile-name" id="profile-name">—</div>
+          <div class="profile-link" id="profile-link">—</div>
+        </div>
+        <button id="btn-logout" class="btn-logout" title="Keluar">⏻</button>
+      </div>
+    </aside>
+
+    <section id="chat-area">
+      <header id="chat-header">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <button id="btn-sidebar-toggle" class="sidebar-toggle" aria-label="Buka sidebar">☰</button>
+          <span class="chat-title" id="chat-title">Percakapan Baru</span>
+        </div>
+        <button id="btn-share" class="btn-share">🔗 Share Chat</button>
+      </header>
+
+      <div id="messages-container"></div>
+
+      <div id="composer-wrap">
+        <div id="attachment-preview" class="hidden"></div>
+
+        <div class="composer">
+          <button id="btn-attach-image" class="composer-icon-btn" title="Lampirkan foto" aria-label="Lampirkan foto">🖼️</button>
+          <button id="btn-attach-doc" class="composer-icon-btn" title="Lampirkan dokumen" aria-label="Lampirkan dokumen">📎</button>
+          <textarea id="chat-input" rows="1" placeholder="Tulis pesan untuk Vesta AI..."></textarea>
+          <button id="btn-send" class="composer-icon-btn btn-send" disabled title="Kirim" aria-label="Kirim pesan">➤</button>
+        </div>
+        <div class="composer-hint">Vesta AI dapat membuat kesalahan. Periksa kembali info penting.</div>
+
+        <input type="file" id="image-input" accept="image/jpeg,image/png,image/gif,image/webp" class="hidden">
+        <input type="file" id="doc-input" accept=".txt,.md,.csv,.json" class="hidden">
+      </div>
+    </section>
+  </div>
+
+  <div id="toast-container"></div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
