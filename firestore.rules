@@ -1,0 +1,28 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Profil pengguna: hanya pemilik yang boleh baca/tulis datanya sendiri.
+    match /users/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // Sesi & pesan chat: hanya bisa diakses oleh pemilik akun.
+    // Karena path memakai uniqueLinkId (bukan uid), kita verifikasi lewat
+    // dokumen users/{uid} milik requester.
+    match /chats/{uniqueLinkId}/{document=**} {
+      allow read, write: if request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.uniqueLinkId == uniqueLinkId;
+    }
+
+    // Shared chat: siapa saja boleh membaca (publik, read-only).
+    // Hanya pengguna yang login yang boleh membuat share baru; tidak ada
+    // yang boleh mengedit/menghapus share setelah dibuat.
+    match /shared_chats/{shareId} {
+      allow read: if true;
+      allow create: if request.auth != null;
+      allow update, delete: if false;
+    }
+  }
+}
